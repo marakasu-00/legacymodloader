@@ -1,29 +1,34 @@
 package com.example.compatmod.legacy;
 
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import java.util.function.Supplier;
+@SuppressWarnings("removal")
 public class LegacyGameRegistry {
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "compatmod");
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "compatmod");
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "legacymodloader");
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "legacymodloader");
 
-    public static void registerItem(Item item, String name) {
-        ITEMS.register(name, () -> item);
+    static {
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static void registerBlock(Block block, String name) {
-        BLOCKS.register(name, () -> block);
+    public static RegistryObject<Item> registerItem(String name, Supplier<Item> supplier) {
+        return ITEMS.register(name, supplier);
     }
 
-    public static DeferredRegister<Item> getItemRegister() {
-        return ITEMS;
-    }
-
-    public static DeferredRegister<Block> getBlockRegister() {
-        return BLOCKS;
+    public static RegistryObject<Block> registerBlock(String name, Supplier<Block> supplier) {
+        RegistryObject<Block> block = BLOCKS.register(name, supplier);
+        // 自動で BlockItem も登録
+        ITEMS.register(name, () -> new BlockItem(block.get(), new Properties()));
+        return block;
     }
 }
