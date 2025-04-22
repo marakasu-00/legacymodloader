@@ -193,7 +193,7 @@ processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", minecraft_version
 
-    filesMatching("META-INF/mods.toml") {
-        expand "version": project.version, "mcversion": minecraft_version
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand([project: project]) // mods.toml内に${}がなければこのままでOK
     }
 }
