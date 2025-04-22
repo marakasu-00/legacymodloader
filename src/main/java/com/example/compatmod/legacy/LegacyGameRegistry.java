@@ -1,10 +1,13 @@
 package com.example.compatmod.legacy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -61,5 +64,18 @@ public class LegacyGameRegistry {
     ) {
         return BLOCK_ENTITIES.register(name,
                 () -> BlockEntityType.Builder.of(factory::apply, block.get()).build(null));
+    }
+    public static final DeferredRegister<MenuType<?>> MENUS =
+            DeferredRegister.create(ForgeRegistries.MENU_TYPES, "legacymodloader");
+
+    static {
+        // 他と同様に登録
+        MENUS.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+    public static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> registerMenu(
+            String name,
+            MenuType.MenuSupplier<T> supplier
+    ) {
+        return MENUS.register(name, () -> IForgeMenuType.create(supplier));
     }
 }
