@@ -1,7 +1,10 @@
 package com.example.compatmod.legacy;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -9,6 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @SuppressWarnings("removal")
@@ -38,16 +42,24 @@ public class LegacyGameRegistry {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        com.example.compatmod.legacy.api.CreativeTabs.TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
-    public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityType.BlockEntitySupplier<T> supplier, RegistryObject<Block> block) {
-        return BLOCK_ENTITIES.register(name,
-                () -> BlockEntityType.Builder.of(supplier, block.get()).build(null));
+    public static RegistryObject<Item> registerItem(String name, Supplier<Item> supplier) {
+        return ITEMS.register(name, supplier);
     }
     public static RegistryObject<Block> registerBlock(String name, Supplier<Block> supplier) {
         // ブロックを登録
         RegistryObject<Block> block = BLOCKS.register(name, supplier);
         // ブロックアイテムも同時に登録
-        ITEMS.register(name, () -> new net.minecraft.world.item.BlockItem(block.get(), new Item.Properties()));
+        ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
         return block;
+    }
+    public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(
+            String name,
+            BiFunction<BlockPos, BlockState, T> factory,
+            RegistryObject<Block> block
+    ) {
+        return BLOCK_ENTITIES.register(name,
+                () -> BlockEntityType.Builder.of(factory::apply, block.get()).build(null));
     }
 }

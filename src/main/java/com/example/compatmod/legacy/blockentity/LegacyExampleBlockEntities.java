@@ -16,8 +16,9 @@ public class LegacyExampleBlockEntities {
                 new Block(Block.Properties.of().strength(1.5F, 6.0F)));
 
         // RegistryObject<Block> を使用して BlockEntity を登録
-        EXAMPLE = LegacyGameRegistry.registerBlockEntity("legacy_example",
-                (pos, state) -> new LegacyExampleBlockEntity(pos, state),
+        EXAMPLE = LegacyGameRegistry.registerBlockEntity(
+                "legacy_example",
+                (BlockPos pos, BlockState state) -> new LegacyExampleBlockEntity(pos, state),
                 exampleBlock
         );
     }
