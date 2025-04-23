@@ -76,6 +76,8 @@ public class LegacyGameRegistry {
             String name,
             MenuType.MenuSupplier<T> supplier
     ) {
-        return MENUS.register(name, () -> IForgeMenuType.create(supplier));
+        return MENUS.register(name, () ->
+                IForgeMenuType.create((windowId, inv, buf) -> supplier.create(windowId, inv))
+        );
     }
 }
