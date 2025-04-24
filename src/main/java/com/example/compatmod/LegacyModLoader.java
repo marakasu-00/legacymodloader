@@ -1,6 +1,7 @@
 package com.example.compatmod;
 
 import com.example.compatmod.legacy.loader.LegacyModJarLoader;
+import com.example.compatmod.legacy.loader.LegacyModManager;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -20,6 +21,7 @@ public class LegacyModLoader {
         loader.loadAllLegacyMods();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::doClientStuff);
+        LegacyModManager.loadLegacyMods();
     }
 
     private void setup(final FMLCommonSetupEvent event) {
