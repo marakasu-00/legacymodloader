@@ -26,19 +26,22 @@ public class LegacyModJarLoader {
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
+        File outputDir = new File("run/resources", "assets");
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+
         for (File jar : jars) {
             try {
                 URL jarUrl = jar.toURI().toURL();
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
-                File outputDir = new File("run", "assets");
-                if (!outputDir.exists()) {
-                    outputDir.mkdirs();
-                }
+
+                // --- assets 展開を先に実行 ---
                 extractLegacyAssets(jar, outputDir);
 
                 try (JarFile jarFile = new JarFile(jar)) {
                     jarFile.stream()
-                            .filter(entry -> entry.getName().endsWith(".class") && !entry.isDirectory())
+                            .filter(entry -> entry.getName().endsWith(".class"))
                             .forEach(entry -> {
                                 String className = entry.getName()
                                         .replace('/', '.')
@@ -46,17 +49,18 @@ public class LegacyModJarLoader {
                                         .replace(".class", "");
                                 try {
                                     Class<?> clazz = classLoader.loadClass(className);
-
-                                    // BaseMod 継承チェック
                                     if (!Modifier.isAbstract(clazz.getModifiers()) && isLegacyModClass(clazz)) {
                                         System.out.println("[LegacyLoader] Loaded legacy mod class: " + className);
-                                        initializeModClass(clazz); // インスタンス化と初期化を実行
-                                        extractLegacyAssets(jar);
-                                        loadedClasses.add(clazz);
+                                        try {
+                                            initializeModClass(clazz);
+                                            loadedClasses.add(clazz);
+                                        } catch (Exception initException) {
+                                            System.err.println("[LegacyLoader] Failed to initialize: " + className);
+                                            initException.printStackTrace();
+                                        }
                                     }
-
-                                } catch (Throwable t) {
-                                    // クラス読み込み失敗しても無視
+                                } catch (Throwable loadError) {
+                                    // クラスロード失敗は静かに無視（ログ出すならここ）
                                 }
                             });
                 }
@@ -74,17 +78,19 @@ public class LegacyModJarLoader {
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
-                if (entry.getName().startsWith("assets/")) {
-                    File outFile = new File(outputDir, entry.getName().substring("assets/".length()));
+                if (entry.getName().startsWith("assets/") && !entry.isDirectory()) { // ←ここ追加
+                    String relativePath = entry.getName().substring("assets/".length());
+                    File outFile = new File(outputDir, relativePath);
+
                     File parent = outFile.getParentFile();
                     if (parent != null && !parent.exists()) {
                         parent.mkdirs();
                     }
 
-
                     try (InputStream in = jar.getInputStream(entry);
                          OutputStream out = new FileOutputStream(outFile)) {
                         in.transferTo(out);
+                        System.out.println("[LegacyLoader] Extracted asset: " + relativePath);
                     }
                 }
             }
@@ -93,37 +99,6 @@ public class LegacyModJarLoader {
             e.printStackTrace();
         }
     }
-    public void extractLegacyAssets(File jarFile) {
-        File outputDir = new File("run", "assets"); // こちらも File("run", "assets") に修正
-
-        try (JarFile jar = new JarFile(jarFile)) {
-            jar.stream()
-                    .filter(entry -> entry.getName().startsWith("assets/") && !entry.isDirectory())
-                    .forEach(entry -> {
-                        File outFile = new File(outputDir, entry.getName().substring("assets/".length()));
-                        File parent = outFile.getParentFile();
-                        if (parent != null && !parent.exists()) {
-                            parent.mkdirs(); // 親ディレクトリが存在しない場合は作成
-                        }
-                        try (InputStream in = jar.getInputStream(entry);
-                             FileOutputStream out = new FileOutputStream(outFile)) {
-                            byte[] buffer = new byte[1024];
-                            int len;
-                            while ((len = in.read(buffer)) != -1) {
-                                out.write(buffer, 0, len);
-                            }
-                            System.out.println("[LegacyLoader] Extracted: " + entry.getName());
-                        } catch (IOException e) {
-                            System.err.println("[LegacyLoader] Failed to extract: " + entry.getName());
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (IOException e) {
-            System.err.println("[LegacyLoader] Failed to open jar: " + jarFile.getName());
-            e.printStackTrace();
-        }
-    }
-
 
     private boolean isLegacyModClass(Class<?> clazz) {
         // BaseMod を継承しているかどうかをチェック

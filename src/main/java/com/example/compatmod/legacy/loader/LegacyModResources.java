@@ -1,15 +1,9 @@
 package com.example.compatmod.legacy.loader;
 
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.resource.ResourcePackLoader;
-
 import java.io.File;
 import java.nio.file.Path;
 
 public class LegacyModResources {
-
     public static void injectLegacyAssets() {
         Path legacyAssetsPath = new File("run/assets").toPath();
 
@@ -18,17 +12,7 @@ public class LegacyModResources {
             return;
         }
 
-        try {
-            System.out.println("[LegacyLoader] Injecting legacy assets from: " + legacyAssetsPath);
-
-            // Forgeのリソースパック読み込みに追加（ただしForgeが対応している必要あり）
-            ResourcePackLoader.getPackFinder().addPack(
-                    new PathPackResources("legacy_assets", legacyAssetsPath)
-            );
-
-        } catch (Exception e) {
-            System.err.println("[LegacyLoader] Failed to inject legacy assets");
-            e.printStackTrace();
-        }
+        System.out.println("[LegacyLoader] Legacy assets are placed at: " + legacyAssetsPath);
+        // 明示的に登録する必要はない。resources/assets以下にあるとForgeが検出する。
     }
 }

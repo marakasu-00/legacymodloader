@@ -2,6 +2,7 @@ package com.example.compatmod;
 
 import com.example.compatmod.legacy.loader.LegacyModJarLoader;
 import com.example.compatmod.legacy.loader.LegacyModManager;
+import com.example.compatmod.legacy.loader.LegacyModResourceHelper;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -30,5 +31,6 @@ public class LegacyModLoader {
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         // クライアント専用の初期化処理
+        LegacyModResourceHelper.loadLegacyResources();
     }
 }
