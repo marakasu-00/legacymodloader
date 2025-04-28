@@ -1,6 +1,6 @@
 package com.example.compatmod.legacy.api;
 
-public abstract class BaseMod {
+public abstract class BaseMod implements ILegacyMod {
 
     public void load() {
         // サブクラスがオーバーライドして使う（デフォルトは何もしない）

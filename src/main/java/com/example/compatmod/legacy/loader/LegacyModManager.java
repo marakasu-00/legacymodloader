@@ -3,6 +3,7 @@ package com.example.compatmod.legacy.loader;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.google.gson.*;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.client.event.InputEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.lwjgl.glfw.GLFW;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -185,6 +187,18 @@ public class LegacyModManager {
         if (event.phase == TickEvent.Phase.END) {
             for (ILegacyMod mod : legacyMods) {
                 mod.onServerTick();
+            }
+        }
+    }
+    // 追加: キー入力イベントフック
+    @SubscribeEvent
+    public static void onKeyInput(InputEvent.Key event) {
+        if (event.getAction() == GLFW.GLFW_PRESS || event.getAction() == GLFW.GLFW_RELEASE) {
+            boolean pressed = event.getAction() == GLFW.GLFW_PRESS;
+            int keyCode = event.getKey();
+
+            for (ILegacyMod mod : legacyMods) {
+                mod.onKeyInput(keyCode, pressed);
             }
         }
     }

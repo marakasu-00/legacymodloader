@@ -28,7 +28,7 @@ displayName = "Legacy Mod Loader" #mandatory
 #logoFile="legacymodloader.png" #optional
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
-credits="HGOU"
+credits="HGOU,WTHC"
 # A text field displayed in the mod UI
 authors = "marakasu" #optional
 # Display Test controls the display for your mod in the server connection screen

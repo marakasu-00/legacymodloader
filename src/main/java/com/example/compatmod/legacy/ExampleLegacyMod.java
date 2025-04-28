@@ -30,8 +30,14 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     }
     @Override
     public void onServerTick() {
-        System.out.println("[LegacyExample] Server tick called!");
+        System.out.println("[LegacyExample] Server tick running!");
     }
-
+    @Override
+    public void onKeyInput(int keyCode, boolean pressed) {
+        System.out.println("[LegacyExample] Key input detected! key=" + keyCode + " pressed=" + pressed);
+    }
+    @Override
+    public void onRenderGameOverlay() {
+        System.out.println("[LegacyExample] onRenderGameOverlay called!");
+    }
 }
-
