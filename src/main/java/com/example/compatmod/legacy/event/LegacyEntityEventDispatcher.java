@@ -23,6 +23,7 @@ public class LegacyEntityEventDispatcher {
      */
     public static void register(ILegacyEntityEventListener listener) {
         LISTENERS.add(listener);
+        System.out.println("[LegacyEntityEventDispatcher] Registered listener: " + listener.getClass().getName());
     }
 
     /**

@@ -46,13 +46,14 @@ public class LegacyModManager {
                 if (mainClassName.isPresent()) {
                     try {
                         URL jarUrl = jar.toUri().toURL();
-                        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, LegacyModManager.class.getClassLoader());
+                        // ClassLoaderの親を "Minecraft本体＋このModのクラスローダー" に合わせる
+                        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, Thread.currentThread().getContextClassLoader());
                         Class<?> modClass = classLoader.loadClass(mainClassName.get());
                         Object modInstance = modClass.getDeclaredConstructor().newInstance();
 
                         if (modInstance instanceof ILegacyMod legacyMod) {
+                            LegacyModManager.addMod(legacyMod); // ちゃんとリストに登録
                             legacyMod.onLoad(); // <- ここでonLoadを呼び出す！
-                            addMod(legacyMod);  // <- リストにも登録する！（Tickイベントなどで呼べるように）
                             System.out.println("[LegacyModLoader] Loaded legacy mod (ILegacyMod): " + mainClassName.get());
                         } else {
                             MinecraftForge.EVENT_BUS.register(modInstance); // 通常のMODクラスならForgeイベントバスへ登録
@@ -71,11 +72,11 @@ public class LegacyModManager {
             e.printStackTrace();
         }
         // --- 仮で ExampleLegacyMod を手動登録 ---
-        //com.example.compatmod.legacy.ExampleLegacyMod exampleMod = new com.example.compatmod.legacy.ExampleLegacyMod();
-        //exampleMod.onLoad();
-        //addMod(exampleMod);
-        //MinecraftForge.EVENT_BUS.register(exampleMod);
-        //System.out.println("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
+        com.example.compatmod.legacy.ExampleLegacyMod exampleMod = new com.example.compatmod.legacy.ExampleLegacyMod();
+        exampleMod.onLoad();
+        addMod(exampleMod);
+        MinecraftForge.EVENT_BUS.register(exampleMod);
+        System.out.println("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
 
     }
 
@@ -176,6 +177,14 @@ public class LegacyModManager {
         if (event.phase == TickEvent.Phase.END) {
             for (ILegacyMod mod : legacyMods) {
                 mod.onClientTick();
+            }
+        }
+    }
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            for (ILegacyMod mod : legacyMods) {
+                mod.onServerTick();
             }
         }
     }

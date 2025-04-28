@@ -15,17 +15,23 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onLoad() {
-        System.out.println("[LegacyExample] ExampleLegacyMod loaded!");
+        System.out.println("[LegacyExample] onLoad called!");
+        LegacyEntityEventDispatcher.register(this);
     }
 
     @Override
     public void onClientTick() {
-        // ここも空でOK（テスト目的）
+        System.out.println("[LegacyExample] Client tick!");
     }
 
     @Override
     public void onEntityHurt(LivingEntity entity, DamageSource source, float amount) {
         System.out.println("[LegacyExample] Entity hurt: " + entity.getName().getString() + " Damage: " + amount);
     }
+    @Override
+    public void onServerTick() {
+        System.out.println("[LegacyExample] Server tick called!");
+    }
+
 }
 
