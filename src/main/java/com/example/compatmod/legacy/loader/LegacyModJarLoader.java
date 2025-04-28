@@ -1,5 +1,7 @@
 package com.example.compatmod.legacy.loader;
 
+import com.example.compatmod.legacy.api.ILegacyMod;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -107,11 +109,15 @@ public class LegacyModJarLoader {
     }
     private void initializeModClass(Class<?> clazz) {
         try {
-            // クラスのインスタンス化
             Object instance = clazz.getDeclaredConstructor().newInstance();
             System.out.println("[LegacyLoader] Instantiated mod class: " + clazz.getName());
 
-            // 初期化メソッドを順に呼び出す
+            // --- レガシーMODインターフェースを実装していたら登録 ---
+            if (instance instanceof ILegacyMod legacyMod) {
+                LegacyModManager.addMod(legacyMod);
+                System.out.println("[LegacyLoader] Registered legacy mod: " + clazz.getName());
+            }
+
             tryCallMethod(instance, "load");
             tryCallMethod(instance, "init");
             tryCallMethod(instance, "onEnable");
@@ -121,6 +127,7 @@ public class LegacyModJarLoader {
             e.printStackTrace();
         }
     }
+
 
     private void tryCallMethod(Object instance, String methodName) {
         try {

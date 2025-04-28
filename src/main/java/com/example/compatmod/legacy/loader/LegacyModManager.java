@@ -1,25 +1,34 @@
 package com.example.compatmod.legacy.loader;
 
+import com.example.compatmod.legacy.api.ILegacyMod;
 import com.google.gson.*;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
+@Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LegacyModManager {
 
+    private static final List<ILegacyMod> legacyMods = new ArrayList<>();
+
     public static void loadLegacyMods() {
+
         Path legacyModsDir = Paths.get("mods", "Legacy");
 
         if (!Files.exists(legacyModsDir)) {
@@ -40,8 +49,16 @@ public class LegacyModManager {
                         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, LegacyModManager.class.getClassLoader());
                         Class<?> modClass = classLoader.loadClass(mainClassName.get());
                         Object modInstance = modClass.getDeclaredConstructor().newInstance();
-                        MinecraftForge.EVENT_BUS.register(modInstance);
-                        System.out.println("[LegacyModLoader] Loaded legacy mod: " + mainClassName.get());
+
+                        if (modInstance instanceof ILegacyMod legacyMod) {
+                            legacyMod.onLoad(); // <- ここでonLoadを呼び出す！
+                            addMod(legacyMod);  // <- リストにも登録する！（Tickイベントなどで呼べるように）
+                            System.out.println("[LegacyModLoader] Loaded legacy mod (ILegacyMod): " + mainClassName.get());
+                        } else {
+                            MinecraftForge.EVENT_BUS.register(modInstance); // 通常のMODクラスならForgeイベントバスへ登録
+                            System.out.println("[LegacyModLoader] Loaded standard mod: " + mainClassName.get());
+                        }
+
                     } catch (Exception e) {
                         System.err.println("[LegacyModLoader] Failed to load mod class: " + mainClassName.get());
                         e.printStackTrace();
@@ -53,6 +70,13 @@ public class LegacyModManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // --- 仮で ExampleLegacyMod を手動登録 ---
+        //com.example.compatmod.legacy.ExampleLegacyMod exampleMod = new com.example.compatmod.legacy.ExampleLegacyMod();
+        //exampleMod.onLoad();
+        //addMod(exampleMod);
+        //MinecraftForge.EVENT_BUS.register(exampleMod);
+        //System.out.println("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
+
     }
 
     private static Optional<String> findModAnnotatedClass(Path jarPath) {
@@ -139,5 +163,21 @@ public class LegacyModManager {
         }
         return Optional.empty();
     }
+    public static List<ILegacyMod> getLegacyMods() {
+        return legacyMods;
+    }
 
+    public static void addMod(ILegacyMod mod) {
+        legacyMods.add(mod);
+    }
+    // --- Tick イベントにフックする ---
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            for (ILegacyMod mod : legacyMods) {
+                mod.onClientTick();
+            }
+        }
+    }
 }
+
