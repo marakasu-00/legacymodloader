@@ -14,13 +14,13 @@ public class LegacyEventHooks {
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            System.out.println("[LegacyEventHooks] Client tick event fired.");
+            //System.out.println("[LegacyEventHooks] Client tick event fired.");
         }
     }
 
     @SubscribeEvent
     public static void onRenderGameOverlay(RenderGuiOverlayEvent.Post event) {
-        System.out.println("[LegacyEventHooks] Render GUI overlay event fired.");
+        //System.out.println("[LegacyEventHooks] Render GUI overlay event fired.");
     }
 
     @SubscribeEvent

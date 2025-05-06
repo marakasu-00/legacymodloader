@@ -1,5 +1,6 @@
 package org.mtr.legacymodloader;
 
+import com.example.compatmod.legacy.event.LegacyEventDispatcher;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
@@ -91,6 +92,8 @@ public class Legacymodloader {
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+
+        MinecraftForge.EVENT_BUS.register(LegacyEventDispatcher.class);
     }
 
     // Add the example block item to the building blocks tab
