@@ -93,7 +93,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
         final EditBox editBox = new EditBox(Minecraft.getInstance().font, 10, 120, 150, 20, Component.literal("Input"));
-        editBox.setMaxLength(50);
+        widgets.add(new LegacyWidgetWrapper(editBox));
 
         Button button = Button.builder(Component.literal("Submit"), btn -> {
             String input = editBox.getValue().trim();
@@ -106,8 +106,6 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
                 System.out.println("[LegacyExample] 有効な入力: " + input);
             }
         }).pos(10, 150).size(100, 20).build();
-
-        widgets.add(editBox);
-        widgets.add(button);
+        widgets.add(new LegacyWidgetWrapper(button));
     }
 }
