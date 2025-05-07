@@ -1,10 +1,15 @@
 package com.example.compatmod.legacy.widget;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+
+import java.awt.*;
+import java.util.function.BiConsumer;
 
 public class LegacyWidgetWrapper {
     private final AbstractWidget widget;
     private final Runnable tickHandler; // Optional
+    private BiConsumer<GuiGraphics, Point> tooltipRenderer;
 
     public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler) {
         this.widget = widget;
@@ -23,6 +28,15 @@ public class LegacyWidgetWrapper {
         if (tickHandler != null) {
             tickHandler.run();
         }
+    }
+    public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (tooltipRenderer != null) {
+            tooltipRenderer.accept(graphics, new Point(mouseX, mouseY));
+        }
+    }
+
+    public void setTooltipRenderer(BiConsumer<GuiGraphics, Point> renderer) {
+        this.tooltipRenderer = renderer;
     }
 }
 

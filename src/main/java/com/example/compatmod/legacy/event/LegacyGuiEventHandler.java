@@ -35,6 +35,7 @@ public class LegacyGuiEventHandler {
             mod.onScreenOpen(newScreen);
         }
     }
+
     @SubscribeEvent
     public static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
@@ -53,6 +54,7 @@ public class LegacyGuiEventHandler {
             mod.onGuiMouseClick(screen, mouseX, mouseY, button);
         }
     }
+
     @SubscribeEvent
     public static void onRenderPost(ScreenEvent.Render.Post event) {
         Screen screen = event.getScreen();
@@ -64,27 +66,28 @@ public class LegacyGuiEventHandler {
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiRenderPost(screen, guiGraphics, mouseX, mouseY, partialTicks);
         }
+
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
         legacyWidgets.clear();
 
+        Screen screen = event.getScreen();
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiInit(event.getScreen(), legacyWidgets);
-            for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-                event.addListener(wrapper.getWidget());
-            }
+        }
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            event.addListener(wrapper.getWidget());
         }
     }
-
     @SubscribeEvent
     public static void onGuiRender(ScreenEvent.Render.Post event) {
         GuiGraphics graphics = event.getGuiGraphics();
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            wrapper.getWidget().render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
+            AbstractWidget widget = wrapper.getWidget();
+            widget.render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
         }
     }
-
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
@@ -93,5 +96,4 @@ public class LegacyGuiEventHandler {
             }
         }
     }
-
 }
