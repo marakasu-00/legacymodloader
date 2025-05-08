@@ -18,4 +18,11 @@ public class LegacySlider extends AbstractSliderButton {
     protected void applyValue() {
         System.out.println("[LegacyExample] Slider value changed: " + value);
     }
+    public void tick() {
+        // 必要ならアニメーションや値更新などの処理を書く
+    }
+    public double getValue() {
+        return this.value;
+    }
+
 }
