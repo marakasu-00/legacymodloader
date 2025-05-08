@@ -70,6 +70,7 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
+        LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
         legacyWidgets.clear();
 
         Screen screen = event.getScreen();

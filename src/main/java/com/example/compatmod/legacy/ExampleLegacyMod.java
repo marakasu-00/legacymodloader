@@ -3,6 +3,7 @@ package com.example.compatmod.legacy;
 import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
+import com.example.compatmod.legacy.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
 
+    private LegacySlider exampleSlider;
     public ExampleLegacyMod() {
         LegacyEntityEventDispatcher.register(this); // ★ここで登録
     }
@@ -30,7 +32,14 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     }
     @Override
     public void onClientTick() {
-        //System.out.println("[LegacyExample] Client tick!");
+        if (exampleSlider != null) {
+            double value = exampleSlider.getValue();
+            // たとえばスニーク中はスライダーの値をプレイヤーのY座標に反映（テスト目的）
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null && mc.player.isCrouching()) {
+                mc.player.setYRot((float)(value * 360));
+            }
+        }
     }
     @Override
     public void onEntityHurt(LivingEntity entity, DamageSource source, float amount) {
@@ -107,5 +116,13 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             }
         }).pos(10, 150).size(100, 20).build();
         widgets.add(new LegacyWidgetWrapper(button));
+
+        exampleSlider = new LegacySlider(10, 90, 150, 20, 0.5);
+        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)); // <- tick 付きで登録！
     }
+    @Override
+    public void onGuiMouseClicked(Screen screen, double mouseX, double mouseY, int button) {
+        System.out.println("[LegacyExample] Mouse clicked: " + button + " at (" + mouseX + ", " + mouseY + ")");
+    }
+
 }
