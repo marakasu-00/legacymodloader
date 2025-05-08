@@ -19,7 +19,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiButtonEventHandler {
 
-    @SubscribeEvent
+
     public static void onGuiInit(ScreenEvent.Init event,List<LegacyWidgetWrapper> widgets) {
         Screen screen = event.getScreen();
 
