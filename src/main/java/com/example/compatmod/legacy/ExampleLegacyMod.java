@@ -21,7 +21,9 @@ import java.util.List;
 
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
 
+    private double savedSliderValue = 0.5;
     private LegacySlider exampleSlider;
+
     public ExampleLegacyMod() {
         LegacyEntityEventDispatcher.register(this); // ★ここで登録
     }
@@ -37,6 +39,8 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             // たとえばスニーク中はスライダーの値をプレイヤーのY座標に反映（テスト目的）
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null && mc.player.isCrouching()) {
+                float angle = (float) (exampleSlider.getValue() * 180.0); // 値を角度に変換
+                mc.player.setXRot(angle);  // ピッチを変化させる
                 mc.player.setYRot((float)(value * 360));
             }
         }
@@ -117,8 +121,9 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         }).pos(10, 150).size(100, 20).build();
         widgets.add(new LegacyWidgetWrapper(button));
 
-        exampleSlider = new LegacySlider(10, 90, 150, 20, 0.5);
-        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)); // <- tick 付きで登録！
+        exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
+        exampleSlider.setResponder(value -> savedSliderValue = value);  // 値が変わったら保存
+        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick));
     }
     @Override
     public void onGuiMouseClicked(Screen screen, double mouseX, double mouseY, int button) {

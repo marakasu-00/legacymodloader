@@ -11,7 +11,7 @@ public class LegacySlider extends AbstractSliderButton {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(Component.literal("Value: " + (int)(value * 100)));
+        setMessage(Component.literal(String.format("Brightness: %.1f", getValue())));
     }
 
     @Override
