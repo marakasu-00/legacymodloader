@@ -3,6 +3,7 @@ package com.example.compatmod.legacy;
 import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
+import com.example.compatmod.legacy.event.LegacyGuiEventHandler;
 import com.example.compatmod.legacy.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -105,25 +107,17 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     }
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        final EditBox editBox = new EditBox(Minecraft.getInstance().font, 10, 120, 150, 20, Component.literal("Input"));
+        EditBox editBox = new EditBox(Minecraft.getInstance().font, 10, 120, 150, 20, Component.literal("Input"));
+        editBox.setValue(""); // 初期化
         widgets.add(new LegacyWidgetWrapper(editBox));
 
-        Button button = Button.builder(Component.literal("Submit"), btn -> {
-            String input = editBox.getValue().trim();
-
-            if (input.isEmpty()) {
-                System.out.println("[LegacyExample] 入力は空です。");
-            } else if (!input.matches("^[a-zA-Z0-9]+$")) {
-                System.out.println("[LegacyExample] 入力には英数字のみ使用してください。");
-            } else {
-                System.out.println("[LegacyExample] 有効な入力: " + input);
-            }
+        Button submitButton = Button.builder(Component.literal("Submit"), btn -> {
+            System.out.println("[LegacyExample] Submit clicked!");
         }).pos(10, 150).size(100, 20).build();
-        widgets.add(new LegacyWidgetWrapper(button));
+        widgets.add(new LegacyWidgetWrapper(submitButton));
 
         exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
-        exampleSlider.setResponder(value -> savedSliderValue = value);  // 値が変わったら保存
-        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick));
+        widgets.add(new LegacyWidgetWrapper(exampleSlider));
     }
     @Override
     public void onGuiMouseClicked(Screen screen, double mouseX, double mouseY, int button) {

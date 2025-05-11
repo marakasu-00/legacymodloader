@@ -38,6 +38,17 @@ public class LegacyWidgetWrapper {
     public void setTooltipRenderer(BiConsumer<GuiGraphics, Point> renderer) {
         this.tooltipRenderer = renderer;
     }
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return widget.mouseClicked(mouseX, mouseY, button);
+    }
+
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return widget.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return widget.mouseReleased(mouseX, mouseY, button);
+    }
 }
 
 
