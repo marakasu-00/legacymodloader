@@ -29,7 +29,10 @@ public class LegacySlider extends AbstractSliderButton {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        if (this.active && this.visible && this.isHovered()) {
+            return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        }
+        return false;
     }
 
     @Override
@@ -39,5 +42,10 @@ public class LegacySlider extends AbstractSliderButton {
 
     public double getValue() {
         return this.value;
+    }
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        System.out.println("[LegacySlider] mouseClicked received at " + mouseX + "," + mouseY);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

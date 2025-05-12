@@ -70,52 +70,22 @@ public class LegacyGuiEventHandler {
         }
 
     }
-    /*
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
         legacyWidgets.clear();
 
-        // 追加ボタンなどの処理
+        // ボタンなど追加
         LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
 
-        // 全ての ILegacyMod からウィジェットを集める
-        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiInit(event.getScreen(), legacyWidgets);
-        }
-        // ここで確実に addListener
-        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            event.addListener(wrapper.getWidget());
-        }
-        LegacySlider slider = new LegacySlider(10, 90, 150, 20, 0.5);
-        slider.active = true;
-        slider.visible = true;
-
-// ウィジェットリストに入れる（Tick管理用）
-        legacyWidgets.add(new LegacyWidgetWrapper(slider, slider::tick));
-
-// 実際にGUIに追加する
-        event.addListener(slider); // これが絶対必要
-    }
-     */
-    @SubscribeEvent
-    public static void onGuiInit(ScreenEvent.Init event) {
-        legacyWidgets.clear();
-
-        LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
-
+        // 各レガシーMODから取得
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiInit(event.getScreen(), legacyWidgets);
         }
 
+        // 正常な追加（これだけで十分！）
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
             AbstractWidget widget = wrapper.getWidget();
-            event.addListener(widget);
-
-            // addRenderableWidget は protected なので使えない代わりに cast して登録する
-            if (event.getScreen() != null) {
-                ((List<net.minecraft.client.gui.components.events.GuiEventListener>) event.getScreen().children()).add(widget);
-                ((List<net.minecraft.client.gui.components.Renderable>) event.getScreen().renderables).add(widget);
-            }
+            event.addListener(widget); // GUIに追加
         }
     }
 

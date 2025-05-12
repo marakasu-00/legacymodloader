@@ -18,6 +18,7 @@ public class LegacyGuiClickEventHandler {
         int button = event.getButton();
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+
             mod.onGuiMouseClicked(screen, mouseX, mouseY, button);
         }
     }

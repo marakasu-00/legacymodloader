@@ -116,8 +116,8 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         }).pos(10, 150).size(100, 20).build();
         widgets.add(new LegacyWidgetWrapper(submitButton));
 
-        exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
-        widgets.add(new LegacyWidgetWrapper(exampleSlider));
+        //exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
+        //widgets.add(new LegacyWidgetWrapper(exampleSlider));
 
     }
     @Override
