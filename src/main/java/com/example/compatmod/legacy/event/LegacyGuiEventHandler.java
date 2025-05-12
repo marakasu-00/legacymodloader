@@ -70,6 +70,7 @@ public class LegacyGuiEventHandler {
         }
 
     }
+    /*
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
         legacyWidgets.clear();
@@ -85,17 +86,49 @@ public class LegacyGuiEventHandler {
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
             event.addListener(wrapper.getWidget());
         }
-        // スライダー追加
-        //LegacySlider slider = new LegacySlider(10, 90, 150, 20, 0.5);
-        //slider.active = true;
-        //slider.visible = true;
-        //legacyWidgets.add(new LegacyWidgetWrapper(slider, slider::tick));
+        LegacySlider slider = new LegacySlider(10, 90, 150, 20, 0.5);
+        slider.active = true;
+        slider.visible = true;
 
-        // まとめてGUIに登録
-        //for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-        //    event.addListener(wrapper.getWidget());
-        //}
+// ウィジェットリストに入れる（Tick管理用）
+        legacyWidgets.add(new LegacyWidgetWrapper(slider, slider::tick));
+
+// 実際にGUIに追加する
+        event.addListener(slider); // これが絶対必要
     }
+     */
+    @SubscribeEvent
+    public static void onGuiInit(ScreenEvent.Init event) {
+        legacyWidgets.clear();
+
+        LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
+
+        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+            mod.onGuiInit(event.getScreen(), legacyWidgets);
+        }
+
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            AbstractWidget widget = wrapper.getWidget();
+            event.addListener(widget);
+
+            // addRenderableWidget は protected なので使えない代わりに cast して登録する
+            if (event.getScreen() != null) {
+                ((List<net.minecraft.client.gui.components.events.GuiEventListener>) event.getScreen().children()).add(widget);
+                ((List<net.minecraft.client.gui.components.Renderable>) event.getScreen().renderables).add(widget);
+            }
+        }
+    }
+
+    /*
+    @SubscribeEvent
+    public static void onGuiRender(ScreenEvent.Render.Post event) {
+        GuiGraphics graphics = event.getGuiGraphics();
+
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            wrapper.renderTooltip(graphics, event.getMouseX(), event.getMouseY());
+        }
+    }
+     */
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -129,6 +162,22 @@ public class LegacyGuiEventHandler {
                     event.setCanceled(true);
                 }
             }
+        }
+    }
+    @SubscribeEvent
+    public static void onGuiInitPost(ScreenEvent.Init.Post event) {
+        legacyWidgets.clear();
+        LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
+
+        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+            mod.onGuiInit(event.getScreen(), legacyWidgets);
+        }
+
+        Screen screen = event.getScreen();
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            AbstractWidget widget = wrapper.getWidget();
+            ((List<net.minecraft.client.gui.components.events.GuiEventListener>) screen.children()).add(widget);
+            ((List<net.minecraft.client.gui.components.Renderable>) screen.renderables).add(widget);
         }
     }
 }

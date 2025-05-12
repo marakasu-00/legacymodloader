@@ -118,6 +118,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
         exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
         widgets.add(new LegacyWidgetWrapper(exampleSlider));
+
     }
     @Override
     public void onGuiMouseClicked(Screen screen, double mouseX, double mouseY, int button) {
