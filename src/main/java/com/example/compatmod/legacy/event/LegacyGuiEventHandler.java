@@ -129,7 +129,7 @@ public class LegacyGuiEventHandler {
 
             for (LegacyWidgetWrapper wrapper : legacyWidgets) {
                 if (wrapper.mouseReleased(mouseX, mouseY, button)) {
-                    event.setCanceled(true);
+                    //event.setCanceled(true);
                 }
             }
         }
