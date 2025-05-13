@@ -6,10 +6,12 @@ import net.minecraft.network.chat.Component;
 
 public class LegacySlider extends AbstractSliderButton {
 
+    private boolean dragging = false;
+
     public LegacySlider(int x, int y, int width, int height, double value) {
         super(x, y, width, height, Component.empty(), value);
-        this.active = true;
-        this.visible = true;
+        //this.active = true;
+        //this.visible = true;
     }
 
     @Override
@@ -18,7 +20,7 @@ public class LegacySlider extends AbstractSliderButton {
     }
 
     @Override
-    public void applyValue() {
+    protected void applyValue() {
         System.out.println("[LegacySlider] applyValue called, value: " + this.value);
         updateMessage();
     }
@@ -37,15 +39,33 @@ public class LegacySlider extends AbstractSliderButton {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        this.isHovered = this.isMouseOver(mouseX, mouseY);
+
+        // スライダー全体を背景色で塗りつぶして残像を消す
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF202020);
+
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     public double getValue() {
         return this.value;
     }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        System.out.println("[LegacySlider] mouseClicked received at " + mouseX + "," + mouseY);
-        return super.mouseClicked(mouseX, mouseY, button);
+        if (this.isMouseOver(mouseX, mouseY)) {
+            this.dragging = true;
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (this.dragging) {
+            this.dragging = false;
+            return super.mouseReleased(mouseX, mouseY, button);
+        }
+        return false;
     }
 }

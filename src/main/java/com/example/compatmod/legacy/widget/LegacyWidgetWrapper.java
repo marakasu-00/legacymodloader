@@ -47,7 +47,13 @@ public class LegacyWidgetWrapper {
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        return widget.mouseReleased(mouseX, mouseY, button);
+        if (widget.isMouseOver(mouseX, mouseY)) {
+            return widget.mouseReleased(mouseX, mouseY, button);
+        }
+        return false;
+    }
+    public boolean isHovered(double mouseX, double mouseY) {
+        return widget.isMouseOver(mouseX, mouseY);
     }
 }
 
