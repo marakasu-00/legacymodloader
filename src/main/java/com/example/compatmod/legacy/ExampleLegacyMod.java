@@ -1,14 +1,17 @@
 package com.example.compatmod.legacy;
 
+import com.example.compatmod.config.ConfigHandler;
 import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
 import com.example.compatmod.legacy.event.LegacyGuiEventHandler;
+import com.example.compatmod.legacy.widget.LegacyEditBox;
 import com.example.compatmod.legacy.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -25,10 +28,17 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     private double savedSliderValue = 0.5;
     private LegacySlider exampleSlider;
+    private boolean checkboxChecked = false;
+    private String savedInputText = "";
+    private int savedCursorPos = 0;
+    private LegacyEditBox legacyEditBox;
+    private String savedText = "";
+    private int savedCursor = 0;
 
     public ExampleLegacyMod() {
         LegacyEntityEventDispatcher.register(this); // ★ここで登録
     }
+
     @Override
     public void onLoad() {
         System.out.println("[LegacyExample] onLoad called!");
@@ -44,7 +54,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             if (mc.player != null && mc.player.isCrouching()) {
                 float angle = (float) (exampleSlider.getValue() * 180.0); // 値を角度に変換
                 mc.player.setXRot(angle);  // ピッチを変化させる
-                mc.player.setYRot((float)(value * 360));
+                mc.player.setYRot((float) (value * 360));
             }
         }
     }
@@ -73,6 +83,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     public void onPlayerInteract() {
         System.out.println("[LegacyExample] onPlayerInteract called!");
     }
+
     @SubscribeEvent
     public static void debugClick(PlayerInteractEvent.RightClickBlock event) {
         System.out.println("[LegacyEventDispatcher] Right click detected on block: " + event.getPos());
@@ -91,9 +102,13 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onScreenOpen(Screen screen) {
+        if (legacyEditBox != null) {
+            savedText = legacyEditBox.getValue();
+            savedCursor = legacyEditBox.getCursorPosition();
+        }
+
         if (screen instanceof InventoryScreen) {
             System.out.println("インベントリ画面が開かれました！");
-            // 追加の処理...
         }
     }
 
@@ -121,39 +136,58 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        // EditBox
-        final EditBox editBox = new EditBox(Minecraft.getInstance().font, 10, 120, 150, 20, Component.literal("Input"));
-        widgets.add(new LegacyWidgetWrapper(editBox));
+        // スライダー
+        double savedSlider = ConfigHandler.getSliderValueSafe();
+        if (exampleSlider == null) {
+            exampleSlider = new LegacySlider(10, 90, 150, 20, savedSlider);
+            exampleSlider.setResponder(val -> {
+                ConfigHandler.SLIDER_VALUE.set(val);
+                ConfigHandler.COMMON_CONFIG.save();
+                ConfigHandler.setSliderValue(0.75);
+                ConfigHandler.setCheckboxEnabled(true);
+                ConfigHandler.setSavedText("hello");
 
-        // Submitボタン
-        Button button = Button.builder(Component.literal("Submit"), btn -> {
-            String input = editBox.getValue().trim();
-            if (input.isEmpty()) {
-                System.out.println("[LegacyExample] 入力は空です。");
-            } else if (!input.matches("^[a-zA-Z0-9]+$")) {
-                System.out.println("[LegacyExample] 入力には英数字のみ使用してください。");
-            } else {
-                System.out.println("[LegacyExample] 有効な入力: " + input);
+                ConfigHandler.saveConfig();  // 最後にまとめて保存
+            });
+        } else {
+            exampleSlider.setValue(savedSlider);
+        }
+        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)
+                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
+
+        // チェックボックス
+        checkboxChecked = ConfigHandler.getCheckboxSafe();
+        Checkbox checkbox = new Checkbox(10, 60, 150, 20, Component.literal("Enable Feature"), checkboxChecked) {
+            @Override
+            public void onPress() {
+                super.onPress();
+                checkboxChecked = selected();
+                ConfigHandler.CHECKBOX_ENABLED.set(checkboxChecked);
+                ConfigHandler.COMMON_CONFIG.save();
             }
-        }).pos(10, 150).size(100, 20).build();
-        widgets.add(new LegacyWidgetWrapper(button));
+        };
+        widgets.add(new LegacyWidgetWrapper(checkbox)
+                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Enable or disable the feature"), pos.x, pos.y)));
 
-        // LegacySliderを復元
-        exampleSlider = new LegacySlider(10, 90, 150, 20, savedSliderValue);
-        exampleSlider.active = true;
-        exampleSlider.visible = true;
-
-        // 値変更時に保存
-        LegacyWidgetWrapper sliderWrapper = new LegacyWidgetWrapper(exampleSlider, () -> {
-            savedSliderValue = exampleSlider.getValue();
+        // テキストボックス
+        savedText = ConfigHandler.getSavedTextSafe();
+        legacyEditBox = new LegacyEditBox(10, 120, 150, 20);
+        legacyEditBox.setMaxLength(50);
+        legacyEditBox.setResponder(text -> {
+            savedText = text;
+            ConfigHandler.SAVED_TEXT.set(text);
+            ConfigHandler.COMMON_CONFIG.save();
         });
-
-        widgets.add(sliderWrapper);
+        legacyEditBox.setValue(savedText);
+        widgets.add(new LegacyWidgetWrapper(legacyEditBox)
+                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Enter custom text here"), pos.x, pos.y)));
     }
 
     @Override
-    public void onGuiMouseClicked(Screen screen, double mouseX, double mouseY, int button) {
+    public void onGuiMouseClicked (Screen screen,double mouseX, double mouseY, int button){
         System.out.println("[LegacyExample] Mouse clicked: " + button + " at (" + mouseX + ", " + mouseY + ")");
     }
-
 }

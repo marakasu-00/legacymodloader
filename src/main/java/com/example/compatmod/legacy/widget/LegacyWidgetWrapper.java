@@ -10,6 +10,8 @@ public class LegacyWidgetWrapper {
     private final AbstractWidget widget;
     private final Runnable tickHandler; // Optional
     private BiConsumer<GuiGraphics, Point> tooltipRenderer;
+    private boolean visible = true;
+    private boolean enabled = true;
 
     public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler) {
         this.widget = widget;
@@ -30,7 +32,7 @@ public class LegacyWidgetWrapper {
         }
     }
     public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        if (tooltipRenderer != null) {
+        if (tooltipRenderer != null && widget.isMouseOver(mouseX, mouseY)) {
             tooltipRenderer.accept(graphics, new Point(mouseX, mouseY));
         }
     }
@@ -42,18 +44,36 @@ public class LegacyWidgetWrapper {
         return widget.mouseClicked(mouseX, mouseY, button);
     }
 
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        return widget.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        return widget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
-
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (widget.isMouseOver(mouseX, mouseY)) {
-            return widget.mouseReleased(mouseX, mouseY, button);
-        }
-        return false;
+        return widget.mouseReleased(mouseX, mouseY, button);
     }
     public boolean isHovered(double mouseX, double mouseY) {
         return widget.isMouseOver(mouseX, mouseY);
+    }
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        widget.visible = visible;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        widget.active = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public LegacyWidgetWrapper withTooltip(BiConsumer<GuiGraphics, Point> renderer) {
+        this.tooltipRenderer = renderer;
+        return this;
     }
 }
 
