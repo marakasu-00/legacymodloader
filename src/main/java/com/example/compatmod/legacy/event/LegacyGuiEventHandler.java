@@ -23,6 +23,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.client.event.ScreenEvent.MouseButtonPressed.Pre;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,17 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiEventHandler {
     private static final List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
+    public static void addLegacyWidget(LegacyWidgetWrapper wrapper) {
+        legacyWidgets.add(wrapper);
+    }
+
+    public static void clearLegacyWidgets() {
+        legacyWidgets.clear();
+    }
+
+    public static List<LegacyWidgetWrapper> getLegacyWidgets() {
+        return new ArrayList<>(legacyWidgets); // 直接参照を渡さない
+    }
 
     @SubscribeEvent
     public static void onScreenOpen(ScreenEvent.Opening event) {
@@ -74,6 +86,8 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
+        // 既存のウィジェットをクリア
+        clearLegacyWidgets();
         // 古いウィジェットをすべてクリア
         List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
 
@@ -87,17 +101,16 @@ public class LegacyGuiEventHandler {
 
         // GUIに追加
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            AbstractWidget widget = wrapper.getWidget();
-            event.addListener(widget);
+            event.addListener(wrapper.getWidget());
 
             // widget が Renderable や GuiEventListener のインターフェースを持つ場合、明示的に登録
             if (event.getScreen() != null) {
                 Screen screen = event.getScreen();
                 if (screen.children() instanceof List) {
-                    ((List) screen.children()).add(widget);
+                    ((List) screen.children()).add(wrapper.getWidget());
                 }
                 if (screen.renderables instanceof List) {
-                    ((List) screen.renderables).add(widget);
+                    ((List) screen.renderables).add(wrapper.getWidget());
                 }
             }
         }
@@ -109,53 +122,72 @@ public class LegacyGuiEventHandler {
         legacyWidgets.clear();
         legacyWidgets.addAll(widgets);
     }
-    /*
+
     @SubscribeEvent
     public static void onGuiRender(ScreenEvent.Render.Post event) {
         GuiGraphics graphics = event.getGuiGraphics();
-
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            wrapper.renderTooltip(graphics, event.getMouseX(), event.getMouseY());
+            if (wrapper.isVisible()) {
+                wrapper.getWidget().render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
+                wrapper.renderTooltip(graphics, event.getMouseX(), event.getMouseY());
+            }
         }
     }
-     */
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-                wrapper.tick();
+                if (wrapper.isVisible() && wrapper.isEnabled()) {
+                    wrapper.tick();
+                }
             }
         }
     }
     public static void registerLegacyWidget(LegacyWidgetWrapper widget) {
         legacyWidgets.add(widget);
     }
+
     @SubscribeEvent
     public static void onMouseDragged(ScreenEvent.MouseDragged.Pre event) {
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            // 一般的にドラッグは button=0 (左クリック) に紐づくので、仮にそれで処理
-            if (wrapper.mouseDragged(event.getMouseX(), event.getMouseY(), 0, event.getDragX(), event.getDragY())) {
-                event.setCanceled(true);
-            }
-        }
-    }
-    @SubscribeEvent
-    public static void onMouseRelease(InputEvent.MouseButton event) {
-        if (!Minecraft.getInstance().screen.isPauseScreen()) {
-            double mouseX = Minecraft.getInstance().mouseHandler.xpos();
-            double mouseY = Minecraft.getInstance().mouseHandler.ypos();
-            int button = event.getButton();
-            for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-                if (wrapper.mouseReleased(mouseX, mouseY, button)) {
-                    // wrapperがtrueを返した（＝自分で処理した）ときだけキャンセル
-                    System.out.println("[Debug] Mouse released handled by wrapper.");
-                    event.setCanceled(true);
-                    return;
+            if (wrapper.getWidget().isMouseOver(event.getMouseX(), event.getMouseY())) {
+                boolean result = wrapper.mouseDragged(
+                        event.getMouseX(),
+                        event.getMouseY(),
+                        0, // 通常は左クリック（button = 0）
+                        event.getDragX(),
+                        event.getDragY()
+                );
+                if (result) {
+                    event.setCanceled(true); // 本当に処理されたときだけキャンセル
+                    break;
                 }
             }
         }
     }
+
+    @SubscribeEvent
+    public static void onMouseReleased(InputEvent.MouseButton event) {
+        if (event.getAction() != GLFW.GLFW_RELEASE) return; // RELEASEイベントのみ処理
+
+        Minecraft mc = Minecraft.getInstance();
+        if (!mc.screen.isPauseScreen()) {
+            double mouseX = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
+            double mouseY = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
+            int button = event.getButton();
+
+            for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+                if (wrapper.getWidget().isMouseOver(mouseX, mouseY)) {
+                    if (wrapper.mouseReleased(mouseX, mouseY, button)) {
+                        event.setCanceled(true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onGuiInitPost(ScreenEvent.Init.Post event) {
         legacyWidgets.clear();
@@ -172,4 +204,28 @@ public class LegacyGuiEventHandler {
             ((List<net.minecraft.client.gui.components.Renderable>) screen.renderables).add(widget);
         }
     }
+    @SubscribeEvent
+    public static void onClientChatSent(net.minecraftforge.client.event.ClientChatEvent event) {
+        String message = event.getMessage();
+
+        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+            mod.onChatInput(message);
+        }
+    }
+    @SubscribeEvent
+    public static void onChatInput(net.minecraftforge.client.event.ClientChatEvent event) {
+        String message = event.getMessage();
+
+        // すべてのレガシーMODに通知
+        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+            mod.onChatInput(message);
+        }
+
+        // もし独自コマンドや処理でチャット送信をブロックしたいならここでキャンセル
+        if (message.startsWith("!legacy")) {
+            event.setCanceled(true);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Legacy command intercepted: " + message));
+        }
+    }
+
 }

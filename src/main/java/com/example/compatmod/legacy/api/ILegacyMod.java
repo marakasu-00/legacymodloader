@@ -60,5 +60,4 @@ public interface ILegacyMod {
     default void onChatInput(String message) {}
 
     default void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets){}
-
 }

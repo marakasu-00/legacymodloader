@@ -28,7 +28,7 @@ public class Config {
     // a list of strings that are treated as resource locations for items
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER.comment("A list of items to log on common setup.").defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), Config::validateItemName);
 
-    static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean logDirtBlock;
     public static int magicNumber;
@@ -40,14 +40,16 @@ public class Config {
         return obj instanceof final String itemName && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(itemName));
     }
 
+    /*
     @SubscribeEvent
     @SuppressWarnings("removal")
     static void onLoad(final ModConfigEvent event) {
         logDirtBlock = LOG_DIRT_BLOCK.get();
         magicNumber = MAGIC_NUMBER.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
-
-        // convert the list of strings into a set of items
-        items = ITEM_STRINGS.get().stream().map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName))).collect(Collectors.toSet());
+        items = ITEM_STRINGS.get().stream()
+                .map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
+                .collect(Collectors.toSet());
     }
+     */
 }
