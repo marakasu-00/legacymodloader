@@ -13,6 +13,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.mtr.legacymodloader.Config;
 
 import java.io.File;
 
@@ -21,6 +22,7 @@ public class LegacyModLoader {
     @SuppressWarnings("removal")
     public LegacyModLoader() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(ConfigHandler::onConfigLoaded);
@@ -48,8 +50,9 @@ public class LegacyModLoader {
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             double slider = ConfigHandler.getSliderValueSafe();
-            // 必要な初期化コード
-            LegacyModManager.loadLegacyMods();
+            boolean flag = ConfigHandler.getCheckboxSafe();
+            String text = ConfigHandler.getSavedTextSafe();
+            // 必要ならこれらの値を Mod の他の初期化に使う
         });
     }
 

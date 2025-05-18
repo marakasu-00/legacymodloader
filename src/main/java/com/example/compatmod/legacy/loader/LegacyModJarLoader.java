@@ -25,6 +25,13 @@ public class LegacyModJarLoader {
 
     public List<Class<?>> loadAllLegacyMods() {
         List<Class<?>> loadedClasses = new ArrayList<>();
+        // フォルダが存在しない場合は作成して警告表示
+        if (!legacyModsFolder.exists()) {
+            System.err.println("[LegacyLoader] legacyModsFolder does not exist: " + legacyModsFolder.getAbsolutePath());
+            legacyModsFolder.mkdirs(); // ディレクトリがない場合は作成
+            return loadedClasses;
+        }
+
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
