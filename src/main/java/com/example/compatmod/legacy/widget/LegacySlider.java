@@ -10,8 +10,9 @@ public class LegacySlider extends AbstractSliderButton {
 
     public LegacySlider(int x, int y, int width, int height, double value) {
         super(x, y, width, height, Component.empty(), value);
-        //this.active = true;
-        //this.visible = true;
+        this.active = true;
+        this.visible = true;
+        updateMessage();
     }
 
     @Override
@@ -41,8 +42,8 @@ public class LegacySlider extends AbstractSliderButton {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.isHovered = this.isMouseOver(mouseX, mouseY);
 
-        // スライダー全体を背景色で塗りつぶして残像を消す
-        graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF202020);
+        // 背景を明示的に塗りつぶす（文字のゴースト防止）
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0xFF000000);
 
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
