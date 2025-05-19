@@ -47,12 +47,16 @@ public class LegacyModLoader {
         });
     }
 
+    // LegacyModLoader.java
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            double slider = ConfigHandler.getSliderValueSafe();
-            boolean flag = ConfigHandler.getCheckboxSafe();
-            String text = ConfigHandler.getSavedTextSafe();
-            // 必要ならこれらの値を Mod の他の初期化に使う
+            File modsFolder = new File("mods");
+            if (!modsFolder.exists()) {
+                modsFolder.mkdirs();
+            }
+
+            LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
+            loader.loadAllLegacyMods();
         });
     }
 

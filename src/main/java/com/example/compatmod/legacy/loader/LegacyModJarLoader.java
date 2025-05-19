@@ -35,12 +35,24 @@ public class LegacyModJarLoader {
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
+        // 自身のMod JARファイルのパスを取得
+        String selfJarPath = new File(LegacyModJarLoader.class
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath())
+                .getAbsolutePath();
+
+
         File outputDir = new File("run/resources", "assets");
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
 
         for (File jar : jars) {
+            if (jar.getAbsolutePath().equals(selfJarPath)) {
+                continue;
+            }
             try {
                 URL jarUrl = jar.toURI().toURL();
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
