@@ -15,85 +15,57 @@ import java.lang.reflect.Modifier;
 public class LegacyModJarLoader {
 
     private final File legacyModsFolder;
+    private final String thisModFileName;
 
-    public LegacyModJarLoader(File modsFolder) {
-        this.legacyModsFolder = new File(modsFolder, "legacy");
-        if (!legacyModsFolder.exists()) {
-            legacyModsFolder.mkdirs();
-        }
+    public LegacyModJarLoader(File legacyModsFolder) {
+        this.legacyModsFolder = legacyModsFolder;
+        // 自分自身のJAR名を取得（例: legacymodloader-1.20.1-1.0.jar）
+        thisModFileName = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
     }
 
     public List<Class<?>> loadAllLegacyMods() {
         List<Class<?>> loadedClasses = new ArrayList<>();
-        // フォルダが存在しない場合は作成して警告表示
-        if (!legacyModsFolder.exists()) {
-            System.err.println("[LegacyLoader] legacyModsFolder does not exist: " + legacyModsFolder.getAbsolutePath());
-            legacyModsFolder.mkdirs(); // ディレクトリがない場合は作成
-            return loadedClasses;
-        }
-
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
-        // 自身のMod JARファイルのパスを取得
-        String selfJarPath = new File(LegacyModJarLoader.class
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .getPath())
-                .getAbsolutePath();
-
-
-        File outputDir = new File("run/resources", "assets");
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
-        }
-
         for (File jar : jars) {
-            if (jar.getAbsolutePath().equals(selfJarPath)) {
-                continue;
-            }
             try {
+                // 自分自身のJARファイルはスキップ
+                if (thisModFileName.contains(jar.getName())) {
+                    System.out.println("[LegacyModJarLoader] Skipped own mod jar: " + jar.getName());
+                    continue;
+                }
+
                 URL jarUrl = jar.toURI().toURL();
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
 
-                // --- assets 展開を先に実行 ---
-                extractLegacyAssets(jar, outputDir);
-
                 try (JarFile jarFile = new JarFile(jar)) {
-                    jarFile.stream()
-                            .filter(entry -> entry.getName().endsWith(".class"))
-                            .forEach(entry -> {
-                                String className = entry.getName()
-                                        .replace('/', '.')
-                                        .replace('\\', '.')
-                                        .replace(".class", "");
-                                try {
-                                    Class<?> clazz = classLoader.loadClass(className);
-                                    if (!Modifier.isAbstract(clazz.getModifiers()) && isLegacyModClass(clazz)) {
-                                        System.out.println("[LegacyLoader] Loaded legacy mod class: " + className);
-                                        try {
-                                            initializeModClass(clazz);
-                                            loadedClasses.add(clazz);
-                                        } catch (Exception initException) {
-                                            System.err.println("[LegacyLoader] Failed to initialize: " + className);
-                                            initException.printStackTrace();
-                                        }
-                                    }
-                                } catch (Throwable loadError) {
-                                    // クラスロード失敗は静かに無視（ログ出すならここ）
+                    Enumeration<JarEntry> entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        if (entry.getName().endsWith(".class")) {
+                            String className = entry.getName().replace('/', '.').replace(".class", "");
+                            try {
+                                Class<?> clazz = classLoader.loadClass(className);
+                                if (!Modifier.isAbstract(clazz.getModifiers()) && isLegacyModClass(clazz)) {
+                                    System.out.println("[LegacyLoader] Loaded legacy mod class: " + className);
+                                    initializeModClass(clazz);
+                                    loadedClasses.add(clazz);
                                 }
-                            });
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    }
                 }
-
-            } catch (Exception e) {
-                System.err.println("[LegacyLoader] Failed to process: " + jar.getName());
+            } catch (IOException e) {
+                System.err.println("[LegacyLoader] Failed to process jar: " + jar.getName());
                 e.printStackTrace();
             }
         }
 
         return loadedClasses;
     }
+
     private void extractLegacyAssets(File legacyJar, File outputDir) {
         try (JarFile jar = new JarFile(legacyJar)) {
             Enumeration<JarEntry> entries = jar.entries();

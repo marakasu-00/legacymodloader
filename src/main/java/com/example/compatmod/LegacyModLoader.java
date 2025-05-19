@@ -21,18 +21,16 @@ import java.io.File;
 public class LegacyModLoader {
     @SuppressWarnings("removal")
     public LegacyModLoader() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        ConfigHandler.register();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(ConfigHandler::onConfigLoaded);
         // レガシーMODロード開始
-        File modsFolder = new File("mods");
-        LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
-        loader.loadAllLegacyMods();
+        //File modsFolder = new File("mods");
+        //LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
+        //loader.loadAllLegacyMods();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::doClientStuff);
-        MinecraftForge.EVENT_BUS.register(ConfigHandler.class);
+        //MinecraftForge.EVENT_BUS.register(ConfigHandler.class);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -48,15 +46,13 @@ public class LegacyModLoader {
     }
 
     // LegacyModLoader.java
-    private void setup(final FMLCommonSetupEvent event) {
+    private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            File modsFolder = new File("mods");
-            if (!modsFolder.exists()) {
-                modsFolder.mkdirs();
-            }
+            double slider = ConfigHandler.getSliderValueSafe();
+            boolean enabled = ConfigHandler.getCheckboxSafe();
+            String text = ConfigHandler.getSavedTextSafe();
 
-            LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
-            loader.loadAllLegacyMods();
+            System.out.println("Loaded slider=" + slider + " enabled=" + enabled + " text=" + text);
         });
     }
 
