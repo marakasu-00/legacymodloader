@@ -30,6 +30,7 @@ public class LegacyModLoader {
         //loader.loadAllLegacyMods();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::doClientStuff);
+        modEventBus.addListener(this::commonSetup);
         //MinecraftForge.EVENT_BUS.register(ConfigHandler.class);
     }
 

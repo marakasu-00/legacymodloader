@@ -1,10 +1,12 @@
 package com.example.compatmod.legacy;
 
 import com.example.compatmod.config.ConfigHandler;
+import com.example.compatmod.config.SafeConfigManager;
 import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
 import com.example.compatmod.legacy.event.LegacyGuiEventHandler;
+import com.example.compatmod.legacy.widget.LegacyCheckbox;
 import com.example.compatmod.legacy.widget.LegacyEditBox;
 import com.example.compatmod.legacy.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
@@ -136,35 +138,22 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        // スライダー
-        double savedSlider = ConfigHandler.getSliderValueSafe();
-        if (exampleSlider == null) {
-            exampleSlider = new LegacySlider(10, 90, 150, 20, savedSlider);
-            exampleSlider.setResponder(val -> {
-                ConfigHandler.SLIDER_VALUE.set(val);
-                ConfigHandler.COMMON_CONFIG.save();
-                ConfigHandler.setSliderValue(0.75);
-                ConfigHandler.setCheckboxEnabled(true);
-                ConfigHandler.setSavedText("hello");
+        SafeConfigManager.load();
 
-                ConfigHandler.saveConfig();  // 最後にまとめて保存
-            });
-        } else {
-            exampleSlider.setValue(savedSlider);
-        }
+        // スライダー
+        exampleSlider = new LegacySlider(10, 90, 150, 20, SafeConfigManager.getSlider());
+        exampleSlider.setResponder(val -> SafeConfigManager.setSlider(val));
         widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)
                 .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
                         Component.literal("Adjust the slider value"), pos.x, pos.y)));
 
         // チェックボックス
-        checkboxChecked = ConfigHandler.getCheckboxSafe();
-        Checkbox checkbox = new Checkbox(10, 60, 150, 20, Component.literal("Enable Feature"), checkboxChecked) {
+        LegacyCheckbox checkbox = new LegacyCheckbox(10, 60, 150, 20,
+                Component.literal("Enable Feature"), SafeConfigManager.getCheckbox()) {
             @Override
             public void onPress() {
                 super.onPress();
-                checkboxChecked = selected();
-                ConfigHandler.CHECKBOX_ENABLED.set(checkboxChecked);
-                ConfigHandler.COMMON_CONFIG.save();
+                SafeConfigManager.setCheckbox(selected());
             }
         };
         widgets.add(new LegacyWidgetWrapper(checkbox)
@@ -172,15 +161,10 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
                         Component.literal("Enable or disable the feature"), pos.x, pos.y)));
 
         // テキストボックス
-        savedText = ConfigHandler.getSavedTextSafe();
         legacyEditBox = new LegacyEditBox(10, 120, 150, 20);
         legacyEditBox.setMaxLength(50);
-        legacyEditBox.setResponder(text -> {
-            savedText = text;
-            ConfigHandler.SAVED_TEXT.set(text);
-            ConfigHandler.COMMON_CONFIG.save();
-        });
-        legacyEditBox.setValue(savedText);
+        legacyEditBox.setResponder(text -> SafeConfigManager.setText(text));
+        legacyEditBox.setValue(SafeConfigManager.getText());
         widgets.add(new LegacyWidgetWrapper(legacyEditBox)
                 .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
                         Component.literal("Enter custom text here"), pos.x, pos.y)));
