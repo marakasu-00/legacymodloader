@@ -200,6 +200,7 @@ public class LegacyGuiEventHandler {
         Screen screen = event.getScreen();
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
             AbstractWidget widget = wrapper.getWidget();
+            event.addListener(widget);
             ((List<net.minecraft.client.gui.components.events.GuiEventListener>) screen.children()).add(widget);
             ((List<net.minecraft.client.gui.components.Renderable>) screen.renderables).add(widget);
         }
