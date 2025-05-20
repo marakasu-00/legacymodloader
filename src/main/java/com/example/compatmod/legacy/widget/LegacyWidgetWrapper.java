@@ -12,6 +12,7 @@ public class LegacyWidgetWrapper {
     private BiConsumer<GuiGraphics, Point> tooltipRenderer;
     private boolean visible = true;
     private boolean enabled = true;
+    private Runnable refreshHandler;
 
     public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler) {
         this.widget = widget;
@@ -75,6 +76,15 @@ public class LegacyWidgetWrapper {
         this.tooltipRenderer = renderer;
         return this;
     }
+    public LegacyWidgetWrapper withRefresh(Runnable refresher) {
+        this.refreshHandler = refresher;
+        return this;
+    }
+
+    public void refresh() {
+        if (refreshHandler != null) refreshHandler.run();
+    }
+
 }
 
 

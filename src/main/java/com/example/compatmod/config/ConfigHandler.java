@@ -1,9 +1,13 @@
 package com.example.compatmod.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ConfigHandler {
 
     // === スペックと各値 ===
@@ -17,9 +21,27 @@ public class ConfigHandler {
         activeConfig = config;
     }
 
+        public static ModConfig currentConfig; // 保存用
+
+        @SubscribeEvent
+        public static void onConfigLoad(ModConfigEvent.Loading event) {
+            if (event.getConfig().getSpec() == COMMON_CONFIG) {
+                currentConfig = event.getConfig();
+            }
+        }
+
+    public static void saveConfigSafe() {
+        try {
+            //COMMON_CONFIG.save();
+        } catch (Exception e) {
+            System.err.println("[ConfigHandler] Failed to save config: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public static void saveConfig() {
         if (activeConfig != null) {
-            activeConfig.save();
+            //activeConfig.save();
         } else {
             System.err.println("Config not yet bound to ModConfig, cannot save.");
         }

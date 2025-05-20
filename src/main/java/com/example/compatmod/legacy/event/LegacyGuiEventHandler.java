@@ -228,5 +228,9 @@ public class LegacyGuiEventHandler {
             Minecraft.getInstance().player.sendSystemMessage(Component.literal("Legacy command intercepted: " + message));
         }
     }
-
+    @SubscribeEvent
+    public static void onScreenClose(ScreenEvent.Closing event) {
+        System.out.println("[LegacyEvent] Screen closing - saving config");
+        com.example.compatmod.config.SafeConfigManager.apply();
+    }
 }
