@@ -1,5 +1,6 @@
 package com.example.compatmod.legacy.event;
 
+import com.example.compatmod.config.SafeConfigManager;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.widget.LegacySlider;
@@ -170,7 +171,7 @@ public class LegacyGuiEventHandler {
             }
         }
     }
-
+/*
     @SubscribeEvent
     public static void onGuiInitPost(ScreenEvent.Init.Post event) {
         legacyWidgets.clear();
@@ -188,6 +189,7 @@ public class LegacyGuiEventHandler {
             ((List<net.minecraft.client.gui.components.Renderable>) screen.renderables).add(widget);
         }
     }
+ */
     @SubscribeEvent
     public static void onClientChatSent(net.minecraftforge.client.event.ClientChatEvent event) {
         String message = event.getMessage();
@@ -214,6 +216,6 @@ public class LegacyGuiEventHandler {
     @SubscribeEvent
     public static void onScreenClose(ScreenEvent.Closing event) {
         System.out.println("[LegacyEvent] Screen closing - saving config");
-        com.example.compatmod.config.SafeConfigManager.apply();
+        SafeConfigManager.saveConfigSafe();
     }
 }

@@ -2,45 +2,48 @@ package com.example.compatmod.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class SafeConfigManager {
-    private static double tempSliderValue;
-    private static boolean tempCheckboxEnabled;
-    private static String tempSavedText;
+import java.io.IOException;
 
-    public static void load() {
-        tempSliderValue = ConfigHandler.getSliderValueSafe();
-        tempCheckboxEnabled = ConfigHandler.getCheckboxSafe();
-        tempSavedText = ConfigHandler.getSavedTextSafe();
-    }
+public class SafeConfigManager {
 
     public static void setSlider(double value) {
-        tempSliderValue = value;
+        if (value >= 0.0 && value <= 1.0) {
+            ConfigHandler.SLIDER_VALUE.set(value);
+        } else {
+            System.out.println("[SafeConfigManager] Invalid slider value: " + value);
+        }
     }
 
-    public static void setCheckbox(boolean enabled) {
-        tempCheckboxEnabled = enabled;
+    public static void setCheckboxEnabled(boolean enabled) {
+        ConfigHandler.CHECKBOX_ENABLED.set(enabled);
+    }
+
+    public static void setCheckbox(boolean value) {
+        ConfigHandler.CHECKBOX_ENABLED.set(value);
+
+        ConfigHandler.saveConfigSafe();
     }
 
     public static void setText(String text) {
-        tempSavedText = text;
+        if (text == null) {
+            text = "";
+        }
+        ConfigHandler.SAVED_TEXT.set(text);
+    }
+
+    public static void saveConfigSafe() {
+        ConfigHandler.COMMON_CONFIG.save();
     }
 
     public static double getSlider() {
-        return tempSliderValue;
+        return ConfigHandler.getSliderValueSafe();
     }
 
     public static boolean getCheckbox() {
-        return tempCheckboxEnabled;
+        return ConfigHandler.getCheckboxSafe();
     }
 
     public static String getText() {
-        return tempSavedText;
-    }
-
-    public static void apply() {
-        ConfigHandler.SLIDER_VALUE.set(tempSliderValue);
-        ConfigHandler.CHECKBOX_ENABLED.set(tempCheckboxEnabled);
-        ConfigHandler.SAVED_TEXT.set(tempSavedText);
-        ConfigHandler.saveConfigSafe();
+        return ConfigHandler.getSavedTextSafe();
     }
 }
