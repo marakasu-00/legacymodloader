@@ -5,26 +5,19 @@ import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.Component;
 
 public class LegacyCheckbox extends Checkbox {
-
-    private boolean checkboxChecked = false; // 初期値を適宜設定
-
-    public LegacyCheckbox(int x, int y, int width, int height, boolean selected) {
-        super(x, y, width, height, Component.empty(), selected);
-        refreshLabel();
+    public LegacyCheckbox(int x, int y, int width, int height, Component message, boolean selected) {
+        super(x, y, width, height, message, selected);
     }
 
     @Override
     public void onPress() {
         super.onPress();
-        checkboxChecked = selected();
-        ConfigHandler.CHECKBOX_ENABLED.set(checkboxChecked);
+        ConfigHandler.setCheckboxEnabled(selected());
         ConfigHandler.saveConfigSafe();
-        refreshLabel();
-
-        // 必要なら表示テキストを変更
-        setMessage(Component.literal(checkboxChecked ? "Feature Enabled" : "Enable Feature"));
+        updateLabel(); // 状態変更に応じてラベルを更新
     }
-    private void refreshLabel() {
-        setMessage(Component.literal(selected()? "Feature Enabled" : "Enable Feature"));
+
+    private void updateLabel() {
+        setMessage(Component.literal(selected() ? "Feature Enabled" : "Enable Feature"));
     }
 }

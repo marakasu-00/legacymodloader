@@ -138,34 +138,24 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        SafeConfigManager.load();
-
-        // スライダー
-        exampleSlider = new LegacySlider(10, 90, 150, 20, SafeConfigManager.getSlider());
-        exampleSlider.setResponder(val -> SafeConfigManager.setSlider(val));
-        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)
-                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
-                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
+        int baseY = 60;
+        int spacing = 30;
 
         // チェックボックス
-        LegacyCheckbox checkbox = new LegacyCheckbox(10, 60, 150, 20,
-                Component.literal("Enable Feature"), SafeConfigManager.getCheckbox()) {
-            @Override
-            public void onPress() {
-                super.onPress();
-                SafeConfigManager.setCheckbox(selected());
-            }
-        };
+        LegacyCheckbox checkbox = new LegacyCheckbox(10, baseY, 150, 20, Component.literal("Enable Feature"), checkboxChecked);
         widgets.add(new LegacyWidgetWrapper(checkbox)
                 .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
                         Component.literal("Enable or disable the feature"), pos.x, pos.y)));
 
+        // スライダー
+        LegacySlider slider = new LegacySlider(10, baseY + spacing, 150, 20, SafeConfigManager.getSlider());
+        widgets.add(new LegacyWidgetWrapper(slider)
+                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
+
         // テキストボックス
-        legacyEditBox = new LegacyEditBox(10, 120, 150, 20);
-        legacyEditBox.setMaxLength(50);
-        legacyEditBox.setResponder(text -> SafeConfigManager.setText(text));
-        legacyEditBox.setValue(SafeConfigManager.getText());
-        widgets.add(new LegacyWidgetWrapper(legacyEditBox)
+        LegacyEditBox editBox = new LegacyEditBox(10, baseY + spacing * 2, 150, 20);
+        widgets.add(new LegacyWidgetWrapper(editBox)
                 .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
                         Component.literal("Enter custom text here"), pos.x, pos.y)));
     }

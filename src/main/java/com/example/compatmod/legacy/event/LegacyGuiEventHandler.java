@@ -86,37 +86,20 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
-        // 既存のウィジェットをクリア
         clearLegacyWidgets();
-        // 古いウィジェットをすべてクリア
-        List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
 
-        // 追加ボタンなどの処理（必要なら外部ハンドラを使う）
+        List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
         LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
 
-        // LegacyMod からウィジェットを収集
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiInit(event.getScreen(), legacyWidgets);
         }
 
-        // GUIに追加
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            event.addListener(wrapper.getWidget());
-
-            // widget が Renderable や GuiEventListener のインターフェースを持つ場合、明示的に登録
-            if (event.getScreen() != null) {
-                Screen screen = event.getScreen();
-                if (screen.children() instanceof List) {
-                    ((List) screen.children()).add(wrapper.getWidget());
-                }
-                if (screen.renderables instanceof List) {
-                    ((List) screen.renderables).add(wrapper.getWidget());
-                }
-            }
+            event.addListener(wrapper.getWidget()); // これだけでOK
         }
 
-        // 必要なら LegacyGuiEventHandler 側で再利用するために保存
-        LegacyGuiEventHandler.setLegacyWidgets(legacyWidgets);
+        setLegacyWidgets(legacyWidgets); // ここは保存用なのでOK
     }
     public static void setLegacyWidgets(List<LegacyWidgetWrapper> widgets) {
         legacyWidgets.clear();
