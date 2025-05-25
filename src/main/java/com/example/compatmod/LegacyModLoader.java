@@ -1,6 +1,7 @@
 package com.example.compatmod;
 
 import com.example.compatmod.config.ConfigHandler;
+import com.example.compatmod.init.ModBlockEntities;
 import com.example.compatmod.legacy.loader.LegacyModJarLoader;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.loader.LegacyModResourceHelper;
@@ -24,6 +25,8 @@ public class LegacyModLoader {
         ConfigHandler.register();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModBlockEntities.register(); // ← 登録！
+
         // レガシーMODロード開始
         //File modsFolder = new File("mods");
         //LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);

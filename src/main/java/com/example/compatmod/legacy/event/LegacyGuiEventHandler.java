@@ -112,7 +112,7 @@ public class LegacyGuiEventHandler {
         GuiGraphics graphics = event.getGuiGraphics();
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
             if (wrapper.isVisible()) {
-                wrapper.getWidget().render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
+
                 wrapper.renderTooltip(graphics, event.getMouseX(), event.getMouseY());
             }
         }
