@@ -14,6 +14,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -72,12 +73,22 @@ public class LegacyGameRegistry {
         // 他と同様に登録
         MENUS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
-    public static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> registerMenu(
+    public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(
             String name,
-            MenuType.MenuSupplier<T> supplier
+            TriFunction<BlockEntityType<T>, BlockPos, BlockState, T> factory,
+            RegistryObject<Block> block
     ) {
-        return MENUS.register(name, () ->
-                IForgeMenuType.create((windowId, inv, buf) -> supplier.create(windowId, inv))
+        final RegistryObject<BlockEntityType<T>>[] holder = new RegistryObject[1];
+
+        holder[0] = BLOCK_ENTITIES.register(name,
+                () -> BlockEntityType.Builder.of(
+                        (pos, state) -> factory.apply(holder[0].get(), pos, state),
+                        block.get()
+                ).build(null)
         );
+
+        return holder[0];
     }
+
+
 }

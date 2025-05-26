@@ -10,40 +10,34 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ConfigHandler {
 
-    // === スペックと各値 ===
     public static final ForgeConfigSpec COMMON_CONFIG;
     public static final ForgeConfigSpec.DoubleValue SLIDER_VALUE;
     public static final ForgeConfigSpec.BooleanValue CHECKBOX_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> SAVED_TEXT;
+
     private static ModConfig activeConfig;
 
     public static void bindConfig(ModConfig config) {
         activeConfig = config;
     }
 
-        public static ModConfig currentConfig; // 保存用
-
-        @SubscribeEvent
-        public static void onConfigLoad(ModConfigEvent.Loading event) {
-            if (event.getConfig().getSpec() == COMMON_CONFIG) {
-                currentConfig = event.getConfig();
-            }
-        }
-
-    public static void saveConfigSafe() {
-        try {
-            //COMMON_CONFIG.save();
-        } catch (Exception e) {
-            System.err.println("[ConfigHandler] Failed to save config: " + e.getMessage());
-            e.printStackTrace();
+    @SubscribeEvent
+    public static void onConfigLoad(ModConfigEvent.Loading event) {
+        if (event.getConfig().getSpec() == COMMON_CONFIG) {
+            activeConfig = event.getConfig();
         }
     }
 
-    public static void saveConfig() {
-        if (activeConfig != null) {
-            //activeConfig.save();
-        } else {
-            System.err.println("Config not yet bound to ModConfig, cannot save.");
+    public static void saveConfigSafe() {
+        try {
+            if (activeConfig != null) {
+                activeConfig.save();  // ← ここが重要！
+            } else {
+                System.err.println("[ConfigHandler] Cannot save: activeConfig is null");
+            }
+        } catch (Exception e) {
+            System.err.println("[ConfigHandler] Failed to save config: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -74,13 +68,11 @@ public class ConfigHandler {
         COMMON_CONFIG = builder.build();
     }
 
-    // === 登録メソッド：1回だけ呼び出す ===
     @SuppressWarnings("removal")
     public static void register() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_CONFIG, "compatmod-common.toml");
     }
 
-    // === 安全な取得メソッド ===
     public static double getSliderValueSafe() {
         try {
             return SLIDER_VALUE.get();

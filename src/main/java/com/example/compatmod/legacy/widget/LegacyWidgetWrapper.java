@@ -14,6 +14,12 @@ public class LegacyWidgetWrapper {
     private boolean enabled = true;
     private Runnable refreshHandler;
 
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (visible) {
+            widget.render(graphics, mouseX, mouseY, partialTick);
+        }
+    }
+
     public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler) {
         this.widget = widget;
         this.tickHandler = tickHandler;

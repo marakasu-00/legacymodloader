@@ -1,5 +1,11 @@
 package com.example.compatmod.legacy.widget;
 
+import com.example.compatmod.config.SafeConfigManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.network.chat.Component;
+import com.example.compatmod.config.SafeConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -8,72 +14,65 @@ import net.minecraft.network.chat.Component;
 import java.util.function.DoubleConsumer;
 
 public class LegacySlider extends AbstractSliderButton {
+    private final String labelPrefix;
+    private final double min;
+    private final double max;
+    private DoubleConsumer responder;
 
-    private boolean dragging = false;
-    private DoubleConsumer responder = val -> {}; // デフォルトの空実装を追加
-
-    public LegacySlider(int x, int y, int width, int height, double value) {
-        super(x, y, width, height, Component.empty(), value);
-        this.active = true;
-        this.visible = true;
-        updateMessage();
+    public LegacySlider(int x, int y, int width, int height, double min, double max, double initial, String labelPrefix) {
+        super(x, y, width, height, Component.literal(""), (initial - min) / (max - min));
+        this.min = min;
+        this.max = max;
+        this.labelPrefix = labelPrefix;
     }
 
     @Override
     protected void updateMessage() {
-        setMessage(Component.literal(String.format("Brightness: %.0f%%", this.value * 100)));
+        //updateLabel();
+    }
+
+    private void updateLabel() {
+        int percent = (int) (getValue() * 100);
+        this.setMessage(Component.literal(labelPrefix + ": " + percent + "%"));
     }
 
     @Override
     protected void applyValue() {
-        responder.accept(this.value);
-        updateMessage();
-        System.out.println("[LegacySlider] applyValue called, value: " + this.value);
-    }
-
-    public void tick() {
-        // スライダーがアニメーションを持つならここで更新
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        // ホバー状態を使わず常にドラッグ可能（通常の挙動）
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        //updateMessage(); // 毎フレーム文字更新（重なり防止）
-        this.isHovered = this.isMouseOver(mouseX, mouseY);
-        super.render(graphics, mouseX, mouseY, partialTicks);
-    }
-
-    public double getValue() {
-        return this.value;
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.isMouseOver(mouseX, mouseY)) {
-            this.dragging = true;
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        boolean result = super.mouseReleased(mouseX, mouseY, button);
-        applyValue(); // 明示的に呼ぶ（念のため）
-        return result;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
-        updateMessage();
+        double actual = getValue();
+        SafeConfigManager.setSlider(actual);
+        if (responder != null) responder.accept(actual);
     }
 
     public void setResponder(DoubleConsumer responder) {
         this.responder = responder;
+    }
+
+    public double getValue() {
+        return min + value * (max - min);
+    }
+
+    public void tick() {
+        // 必要に応じて毎tickの処理を書く
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // スライダー本体描画（ラベルなし）
+        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+
+        // 手動ラベル描画：中央に
+        String label = labelPrefix + ": " + (int)(getValue() * 100) + "%";
+        int labelWidth = Minecraft.getInstance().font.width(label);
+        int labelX = getX() + (width - labelWidth) / 2;
+        int labelY = getY() + (height - 8) / 2;
+
+        graphics.drawString(
+                Minecraft.getInstance().font,
+                label,
+                labelX,
+                labelY,
+                0xFFFFFF,
+                false
+        );
     }
 }

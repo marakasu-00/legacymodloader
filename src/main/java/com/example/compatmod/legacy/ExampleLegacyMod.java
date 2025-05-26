@@ -140,7 +140,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
         // スライダーの設定
         double savedSlider = SafeConfigManager.getSlider();
-        exampleSlider = new LegacySlider(10, 90, 150, 20, savedSlider);
+        exampleSlider = new LegacySlider(10, 90, 150, 20, 0.0, 1.0, savedSlider, "Brightness");
         exampleSlider.setResponder(val -> {
             SafeConfigManager.setSlider(val);  // 値が適切であれば保存
             SafeConfigManager.saveConfigSafe(); // 設定保存
@@ -150,13 +150,24 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
                         Component.literal("Adjust the slider value"), pos.x, pos.y)));
 
         // チェックボックスの設定
-        LegacyCheckbox checkbox = new LegacyCheckbox(10, 60, 150, 20, Component.literal("Enable Feature"), checkboxChecked);
+        LegacyCheckbox checkbox = new LegacyCheckbox(
+                10, 60, 150, 20,
+                Component.literal("Enabled"),
+                SafeConfigManager.getCheckbox()
+        );
+
+        checkbox.setResponder(checked -> {
+            SafeConfigManager.setCheckbox(checked);
+        });
+
         widgets.add(new LegacyWidgetWrapper(checkbox)
                 .withTooltip((gfx, pos) -> gfx.renderTooltip(
                         Minecraft.getInstance().font,
                         Component.literal("Enable or disable the feature"),
                         pos.x, pos.y
                 )));
+
+
 
         // テキストボックスの設定
         savedText = SafeConfigManager.getText();

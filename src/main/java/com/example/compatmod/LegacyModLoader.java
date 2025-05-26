@@ -25,7 +25,8 @@ public class LegacyModLoader {
         ConfigHandler.register();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModBlockEntities.register();
+        ModBlockEntities.register(); // ← 登録！
+
         // レガシーMODロード開始
         //File modsFolder = new File("mods");
         //LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);

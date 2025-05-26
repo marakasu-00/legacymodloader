@@ -15,7 +15,8 @@ public class ModBlockEntities {
                 () -> new Block(Block.Properties.of().strength(3.5F)));
 
         MY_FURNACE = LegacyGameRegistry.registerBlockEntity("legacy_furnace",
-                (type,pos,state) -> new MyFurnaceBlockEntity(type,pos,state),
+                (type, pos, state) -> new MyFurnaceBlockEntity(type, pos, state),
                 furnaceBlock);
+
     }
 }

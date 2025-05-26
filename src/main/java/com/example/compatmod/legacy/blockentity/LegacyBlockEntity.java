@@ -24,4 +24,3 @@ public abstract class LegacyBlockEntity extends BlockEntity {
         load(tag);
     }
 }
-
