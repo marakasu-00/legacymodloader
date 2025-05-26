@@ -26,6 +26,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.client.event.ScreenEvent.MouseButtonPressed.Pre;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiEventHandler {
     private static final List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
+
     public static void addLegacyWidget(LegacyWidgetWrapper wrapper) {
         legacyWidgets.add(wrapper);
     }
@@ -87,20 +89,28 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
+        System.out.println("=== onGuiInit called ===");
+
+        // 🔁 Forge GUI 初期化時にすべての古い要素をクリア
+        event.getScreen().children().clear();
+        event.getScreen().renderables().clear();
         clearLegacyWidgets();
 
-        List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
-        LegacyGuiButtonEventHandler.initWidgets(event, legacyWidgets);
+        // 💡 新しいウィジェットリスト生成
+        List<LegacyWidgetWrapper> newWidgets = new ArrayList<>();
 
+        // 🔗 各MODにGUI初期化を通知
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiInit(event.getScreen(), legacyWidgets);
+            mod.onGuiInit(event.getScreen(), newWidgets);
         }
 
-        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            event.addListener(wrapper.getWidget()); // これだけでOK
+        // 🧷 全ウィジェットをGUIに1回だけ登録
+        for (LegacyWidgetWrapper wrapper : newWidgets) {
+            event.addListener(wrapper.getWidget());
         }
 
-        setLegacyWidgets(legacyWidgets); // ここは保存用なのでOK
+        // 📦 内部状態に保存
+        setLegacyWidgets(newWidgets);
     }
     public static void setLegacyWidgets(List<LegacyWidgetWrapper> widgets) {
         legacyWidgets.clear();
@@ -112,11 +122,13 @@ public class LegacyGuiEventHandler {
         GuiGraphics graphics = event.getGuiGraphics();
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
             if (wrapper.isVisible()) {
-
+                wrapper.render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
                 wrapper.renderTooltip(graphics, event.getMouseX(), event.getMouseY());
             }
         }
     }
+
+
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {

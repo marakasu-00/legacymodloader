@@ -35,16 +35,21 @@ public class LegacyCheckbox extends Checkbox {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick); // チェック枠 + ON/OFF描画込み
+        // 描画エリア（外枠）
+        int boxX = getX();
+        int boxY = getY();
+        System.out.println("Rendering Checkbox: selected = " + selected());
+        graphics.fill(boxX, boxY, boxX + 12, boxY + 12, 0xFFAAAAAA);  // 灰色の四角
 
-        // ラベル描画のみ追加
-        int labelX = getX() + 14; // チェックボックスの右
-        int labelY = getY() + (height - 8) / 2;
-        graphics.drawString(Minecraft.getInstance().font, label, labelX, labelY, 0xFFFFFF, false);
-
-        // ✅ 強制チェックマーク（仮）
+        // チェックマーク描画
         if (selected()) {
-            graphics.fill(getX() + 4, getY() + 4, getX() + 10, getY() + 10, 0xFFFFFFFF); // 白い四角
+            graphics.fill(boxX + 2, boxY + 2, boxX + 10, boxY + 10, 0xFFFFFFFF);  // ✔ 白い中身でON表示
         }
+
+        // ラベル
+        int labelX = boxX + 14;
+        int labelY = boxY + 2;
+        graphics.drawString(Minecraft.getInstance().font, label, labelX, labelY, 0xFFFFFF, false);
     }
+
 }
