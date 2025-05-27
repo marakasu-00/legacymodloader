@@ -2,6 +2,7 @@ package com.example.compatmod.legacy.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraftforge.client.event.ScreenEvent;
 
 import java.awt.*;
 import java.util.function.BiConsumer;
@@ -13,6 +14,11 @@ public class LegacyWidgetWrapper {
     private boolean visible = true;
     private boolean enabled = true;
     private Runnable refreshHandler;
+
+    public void registerAll(ScreenEvent.Init event) {
+            event.addListener(this.getWidget()); // イベント登録
+
+    }
 
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (visible) {
