@@ -92,8 +92,7 @@ public class LegacyGuiEventHandler {
         System.out.println("=== onGuiInit called ===");
 
         // 🔁 Forge GUI 初期化時にすべての古い要素をクリア
-        event.getScreen().children().clear();
-        event.getScreen().renderables().clear();
+        //event.getScreen().children().clear();
         clearLegacyWidgets();
 
         // 💡 新しいウィジェットリスト生成
