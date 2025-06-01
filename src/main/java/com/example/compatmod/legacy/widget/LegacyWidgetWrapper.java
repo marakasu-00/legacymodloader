@@ -15,6 +15,11 @@ public class LegacyWidgetWrapper {
     private boolean enabled = true;
     private Runnable refreshHandler;
 
+    public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler, BiConsumer<GuiGraphics, Point> tooltipRenderer) {
+        this.widget = widget;
+        this.tickHandler = tickHandler;
+    }
+
     public void registerAll(ScreenEvent.Init event) {
             event.addListener(this.getWidget()); // イベント登録
 
