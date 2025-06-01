@@ -103,9 +103,9 @@ public class LegacyGuiEventHandler {
             mod.onGuiInit(event.getScreen(), newWidgets);
         }
 
-        // 🧷 全ウィジェットをGUIに1回だけ登録
+        //
         for (LegacyWidgetWrapper wrapper : newWidgets) {
-            event.addListener(wrapper.getWidget());
+            wrapper.registerAll(event); // ✅ イベント対象として登録
         }
 
         // 📦 内部状態に保存

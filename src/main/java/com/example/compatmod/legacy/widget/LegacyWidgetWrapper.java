@@ -15,17 +15,6 @@ public class LegacyWidgetWrapper {
     private boolean enabled = true;
     private Runnable refreshHandler;
 
-    public void registerAll(ScreenEvent.Init event) {
-            event.addListener(this.getWidget()); // イベント登録
-
-    }
-
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        if (visible) {
-            widget.render(graphics, mouseX, mouseY, partialTick);
-        }
-    }
-
     public LegacyWidgetWrapper(AbstractWidget widget, Runnable tickHandler) {
         this.widget = widget;
         this.tickHandler = tickHandler;
@@ -44,6 +33,13 @@ public class LegacyWidgetWrapper {
             tickHandler.run();
         }
     }
+
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (visible) {
+            widget.render(graphics, mouseX, mouseY, partialTick);
+        }
+    }
+
     public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (tooltipRenderer != null && widget.isMouseOver(mouseX, mouseY)) {
             tooltipRenderer.accept(graphics, new Point(mouseX, mouseY));
@@ -53,6 +49,7 @@ public class LegacyWidgetWrapper {
     public void setTooltipRenderer(BiConsumer<GuiGraphics, Point> renderer) {
         this.tooltipRenderer = renderer;
     }
+
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return widget.mouseClicked(mouseX, mouseY, button);
     }
@@ -60,12 +57,15 @@ public class LegacyWidgetWrapper {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         return widget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
+
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         return widget.mouseReleased(mouseX, mouseY, button);
     }
+
     public boolean isHovered(double mouseX, double mouseY) {
         return widget.isMouseOver(mouseX, mouseY);
     }
+
     public void setVisible(boolean visible) {
         this.visible = visible;
         widget.visible = visible;
@@ -88,6 +88,7 @@ public class LegacyWidgetWrapper {
         this.tooltipRenderer = renderer;
         return this;
     }
+
     public LegacyWidgetWrapper withRefresh(Runnable refresher) {
         this.refreshHandler = refresher;
         return this;
@@ -97,6 +98,10 @@ public class LegacyWidgetWrapper {
         if (refreshHandler != null) refreshHandler.run();
     }
 
+    // ✅ Forgeへのイベント＆描画登録一括
+    public void registerAll(ScreenEvent.Init event) {
+        event.addListener(this.widget); // mouse/key イベント処理の対象に
+    }
 }
 
 

@@ -1,6 +1,8 @@
 package com.example.compatmod.legacy.screen;
 
 import com.example.compatmod.config.ConfigHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -16,8 +18,13 @@ public class LegacyConfigScreen extends Screen {
     }
 
     @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
     public void onClose() {
-        super.onClose();
-        ConfigHandler.saveConfigSafe();  // 閉じたときに一括保存
+        Minecraft.getInstance().setScreen(null); // ← メニューへ戻る
     }
 }
