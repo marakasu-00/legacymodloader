@@ -24,6 +24,7 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
@@ -36,6 +37,10 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     private LegacyEditBox legacyEditBox;
     private String savedText = "";
     private int savedCursor = 0;
+    private LegacyCheckbox checkbox;
+    private final List<List<LegacyWidgetWrapper>> pages = new ArrayList<>();
+    private int currentPage = 0;
+
 
     public ExampleLegacyMod() {
         LegacyEntityEventDispatcher.register(this); // ★ここで登録
@@ -136,52 +141,87 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         System.out.println("[LegacyExample] Chat input detected: " + message);
     }
 
+    private void addPageControls(List<LegacyWidgetWrapper> widgets) {
+        int y = 180;
+        int x = 10;
+
+        if (currentPage > 0) {
+            Button back = Button.builder(Component.literal("Back"), btn -> {
+                currentPage--;
+                Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // 再表示
+            }).bounds(x, y, 60, 20).build();
+            widgets.add(new LegacyWidgetWrapper(back));
+        }
+
+        if (currentPage < pages.size() - 1) {
+            Button next = Button.builder(Component.literal("Next"), btn -> {
+                currentPage++;
+                Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // 再表示
+            }).bounds(x + 70, y, 60, 20).build();
+            widgets.add(new LegacyWidgetWrapper(next));
+        }
+    }
+
+
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        // スライダーの設定
-        double savedSlider = SafeConfigManager.getSlider();
-        exampleSlider = new LegacySlider(10, 90, 150, 20, 0.0, 1.0, savedSlider, "Brightness");
-        exampleSlider.setResponder(val -> {
-            SafeConfigManager.setSlider(val);  // 値が適切であれば保存
-            SafeConfigManager.saveConfigSafe(); // 設定保存
-        });
-        widgets.add(new LegacyWidgetWrapper(exampleSlider, exampleSlider::tick)
-                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
-                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
+        pages.clear();
+        int baseX = 10;
+        int baseY = 60;
+        int spacing = 30;
 
-        // チェックボックスの設定
-        LegacyCheckbox checkbox = new LegacyCheckbox(
-                10, 60, 150, 20,
+        // ✅ Page 1
+        List<LegacyWidgetWrapper> page1 = new ArrayList<>();
+
+        LegacyCheckbox checkbox = new LegacyCheckbox(baseX, baseY, 150, 20,
                 Component.literal("Enabled"),
-                SafeConfigManager.getCheckbox()
-        );
-
+                SafeConfigManager.getCheckbox());
         checkbox.setResponder(checked -> {
             SafeConfigManager.setCheckbox(checked);
+            SafeConfigManager.saveConfigSafe();
         });
+        page1.add(new LegacyWidgetWrapper(checkbox).withTooltip((gfx, pos) ->
+                gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Enable or disable the feature"), pos.x, pos.y)));
 
-        widgets.add(new LegacyWidgetWrapper(checkbox)
-                .withTooltip((gfx, pos) -> gfx.renderTooltip(
-                        Minecraft.getInstance().font,
-                        Component.literal("Enable or disable the feature"),
-                        pos.x, pos.y
-                )));
+        baseY += spacing;
 
+        LegacySlider slider = new LegacySlider(baseX, baseY, 150, 20,
+                0.0, 1.0, SafeConfigManager.getSlider(), "Brightness");
+        slider.setResponder(val -> {
+            SafeConfigManager.setSlider(val);
+            SafeConfigManager.saveConfigSafe();
+        });
+        page1.add(new LegacyWidgetWrapper(slider, slider::tick).withTooltip((gfx, pos) ->
+                gfx.renderTooltip(Minecraft.getInstance().font,
+                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
 
+        pages.add(page1); // ✅ ページ1登録
 
-        // テキストボックスの設定
-        savedText = SafeConfigManager.getText();
-        legacyEditBox = new LegacyEditBox(10, 120, 150, 20);
-        legacyEditBox.setMaxLength(50);
-        legacyEditBox.setResponder(text -> {
+        // ✅ Page 2
+        baseY = 60;
+        List<LegacyWidgetWrapper> page2 = new ArrayList<>();
+
+        LegacyEditBox editBox = new LegacyEditBox(baseX, baseY, 150, 20);
+        editBox.setMaxLength(50);
+        editBox.setValue(SafeConfigManager.getText() != null ? SafeConfigManager.getText() : "");
+        editBox.setResponder(text -> {
             SafeConfigManager.setText(text);
             SafeConfigManager.saveConfigSafe();
         });
-        legacyEditBox.setValue(savedText);
-        widgets.add(new LegacyWidgetWrapper(legacyEditBox)
-                .withTooltip((gfx, pos) -> gfx.renderTooltip(Minecraft.getInstance().font,
+        page2.add(new LegacyWidgetWrapper(editBox).withTooltip((gfx, pos) ->
+                gfx.renderTooltip(Minecraft.getInstance().font,
                         Component.literal("Enter custom text here"), pos.x, pos.y)));
+
+        pages.add(page2); // ✅ ページ2登録
+
+        // ✅ 現在のページのウィジェットのみ表示
+        widgets.addAll(pages.get(currentPage));
+
+        // ✅ ページ切り替えボタン
+        addPageControls(widgets);
     }
+
 
     @Override
     public void onGuiMouseClicked (Screen screen,double mouseX, double mouseY, int button){
