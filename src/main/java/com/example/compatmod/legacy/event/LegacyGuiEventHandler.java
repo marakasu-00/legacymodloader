@@ -34,6 +34,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiEventHandler {
     private static final List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
+    private static int lastMouseButton = -1;
 
     public static void addLegacyWidget(LegacyWidgetWrapper wrapper) {
         legacyWidgets.add(wrapper);
@@ -64,15 +65,20 @@ public class LegacyGuiEventHandler {
 
     @SubscribeEvent
     public static void onMouseClicked(ScreenEvent.MouseButtonPressed.Pre event) {
-        Screen screen = event.getScreen();
         double mouseX = event.getMouseX();
         double mouseY = event.getMouseY();
         int button = event.getButton();
 
-        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiMouseClick(screen, mouseX, mouseY, button);
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            if (wrapper.getWidget().isMouseOver(mouseX, mouseY)) {
+                if (wrapper.mouseClicked(mouseX, mouseY, button)) {
+                    event.setCanceled(true);
+                    return;
+                }
+            }
         }
     }
+
 
     @SubscribeEvent
     public static void onRenderPost(ScreenEvent.Render.Post event) {
@@ -96,20 +102,19 @@ public class LegacyGuiEventHandler {
         clearLegacyWidgets();
 
         // 💡 新しいウィジェットリスト生成
-        List<LegacyWidgetWrapper> newWidgets = new ArrayList<>();
+        List<LegacyWidgetWrapper> widgets = new ArrayList<>();
 
         // 🔗 各MODにGUI初期化を通知
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiInit(event.getScreen(), newWidgets);
+            mod.onGuiInit(event.getScreen(), widgets);
         }
 
-        //
-        for (LegacyWidgetWrapper wrapper : newWidgets) {
-            wrapper.registerAll(event); // ✅ イベント対象として登録
+        for (LegacyWidgetWrapper wrapper : widgets) {
+            event.addListener(wrapper.getWidget());
         }
 
         // 📦 内部状態に保存
-        setLegacyWidgets(newWidgets);
+        setLegacyWidgets(widgets);
     }
     public static void setLegacyWidgets(List<LegacyWidgetWrapper> widgets) {
         legacyWidgets.clear();
@@ -145,44 +150,44 @@ public class LegacyGuiEventHandler {
 
     @SubscribeEvent
     public static void onMouseDragged(ScreenEvent.MouseDragged.Pre event) {
+        double mouseX = event.getMouseX();
+        double mouseY = event.getMouseY();
+        int button = lastMouseButton;
+
         for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-            if (wrapper.getWidget().isMouseOver(event.getMouseX(), event.getMouseY())) {
-                boolean result = wrapper.mouseDragged(
-                        event.getMouseX(),
-                        event.getMouseY(),
-                        0, // 通常は左クリック（button = 0）
-                        event.getDragX(),
-                        event.getDragY()
-                );
-                if (result) {
-                    event.setCanceled(true); // 本当に処理されたときだけキャンセル
-                    break;
+            if (wrapper.getWidget().isMouseOver(mouseX, mouseY)) {
+                if (wrapper.mouseDragged(mouseX, mouseY, button, event.getDragX(), event.getDragY())) {
+                    event.setCanceled(true);
+                    return;
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public static void onMouseReleased(InputEvent.MouseButton event) {
-        if (event.getAction() != GLFW.GLFW_RELEASE) return; // RELEASEイベントのみ処理
+    public static void onMouseButtonRaw(InputEvent.MouseButton event) {
+        if (event.getAction() == GLFW.GLFW_PRESS) {
+            lastMouseButton = event.getButton();
+        }
+    }
 
-        Minecraft mc = Minecraft.getInstance();
-        if (!mc.screen.isPauseScreen()) {
-            double mouseX = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
-            double mouseY = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
-            int button = event.getButton();
+    @SubscribeEvent
+    public static void onMouseReleased(ScreenEvent.MouseButtonReleased.Pre event) {
+        double mouseX = event.getMouseX();
+        double mouseY = event.getMouseY();
 
-            for (LegacyWidgetWrapper wrapper : legacyWidgets) {
-                if (wrapper.getWidget().isMouseOver(mouseX, mouseY)) {
-                    if (wrapper.mouseReleased(mouseX, mouseY, button)) {
-                        event.setCanceled(true);
-                        return;
-                    }
+        int button = lastMouseButton;
+
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            if (wrapper.getWidget().isMouseOver(mouseX, mouseY)) {
+                if (wrapper.mouseReleased(mouseX, mouseY, button)) {
+                    event.setCanceled(true); // ✅ 本当に legacy widget が使った場合だけ
+                    return;
                 }
             }
         }
     }
-/*
+    /*
     @SubscribeEvent
     public static void onGuiInitPost(ScreenEvent.Init.Post event) {
         legacyWidgets.clear();
@@ -228,5 +233,22 @@ public class LegacyGuiEventHandler {
     public static void onScreenClose(ScreenEvent.Closing event) {
         System.out.println("[LegacyEvent] Screen closing - saving config");
         SafeConfigManager.saveConfigSafe();
+    }
+    @SubscribeEvent
+    public static void onRender(ScreenEvent.Render.Post event) {
+        GuiGraphics graphics = event.getGuiGraphics();
+        int mouseX = event.getMouseX();
+        int mouseY = event.getMouseY();
+        float partialTicks = event.getPartialTick();
+
+        for (LegacyWidgetWrapper wrapper : legacyWidgets) {
+            if (wrapper.isVisible()) {
+                wrapper.renderTooltip(graphics, mouseX, mouseY);
+            }
+        }
+
+        for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
+            mod.onGuiRenderPost(event.getScreen(), graphics, mouseX, mouseY, partialTicks);
+        }
     }
 }

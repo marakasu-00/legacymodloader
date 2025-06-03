@@ -6,6 +6,7 @@ import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
 import com.example.compatmod.legacy.event.LegacyGuiEventHandler;
+import com.example.compatmod.legacy.screen.LegacyConfigScreen;
 import com.example.compatmod.legacy.widget.LegacyCheckbox;
 import com.example.compatmod.legacy.widget.LegacyEditBox;
 import com.example.compatmod.legacy.widget.LegacySlider;
@@ -40,6 +41,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     private LegacyCheckbox checkbox;
     private final List<List<LegacyWidgetWrapper>> pages = new ArrayList<>();
     private int currentPage = 0;
+    private Screen screenRef; // 現在のスクリーン参照（再構築時に使用）
 
 
     public ExampleLegacyMod() {
@@ -141,6 +143,14 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         System.out.println("[LegacyExample] Chat input detected: " + message);
     }
 
+    private void rebuildGui() {
+        // スクリーンを変更せずに再構築
+        if (screenRef != null) {
+            Minecraft.getInstance().setScreen(null); // ← 一度閉じる（安全策）
+            Minecraft.getInstance().setScreen(screenRef); // 再表示で onGuiInit が再呼び出しされる
+        }
+    }
+
     private void addPageControls(List<LegacyWidgetWrapper> widgets) {
         int y = 180;
         int x = 10;
@@ -148,7 +158,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         if (currentPage > 0) {
             Button back = Button.builder(Component.literal("Back"), btn -> {
                 currentPage--;
-                Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // 再表示
+                rebuildGui();
             }).bounds(x, y, 60, 20).build();
             widgets.add(new LegacyWidgetWrapper(back));
         }
@@ -156,21 +166,22 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         if (currentPage < pages.size() - 1) {
             Button next = Button.builder(Component.literal("Next"), btn -> {
                 currentPage++;
-                Minecraft.getInstance().setScreen(Minecraft.getInstance().screen); // 再表示
+                rebuildGui();
             }).bounds(x + 70, y, 60, 20).build();
             widgets.add(new LegacyWidgetWrapper(next));
         }
     }
 
-
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
+        this.screenRef = screen;
         pages.clear();
+
         int baseX = 10;
         int baseY = 60;
         int spacing = 30;
 
-        // ✅ Page 1
+        // === Page 1 ===
         List<LegacyWidgetWrapper> page1 = new ArrayList<>();
 
         LegacyCheckbox checkbox = new LegacyCheckbox(baseX, baseY, 150, 20,
@@ -180,9 +191,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             SafeConfigManager.setCheckbox(checked);
             SafeConfigManager.saveConfigSafe();
         });
-        page1.add(new LegacyWidgetWrapper(checkbox).withTooltip((gfx, pos) ->
-                gfx.renderTooltip(Minecraft.getInstance().font,
-                        Component.literal("Enable or disable the feature"), pos.x, pos.y)));
+        page1.add(new LegacyWidgetWrapper(checkbox));
 
         baseY += spacing;
 
@@ -192,13 +201,11 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             SafeConfigManager.setSlider(val);
             SafeConfigManager.saveConfigSafe();
         });
-        page1.add(new LegacyWidgetWrapper(slider, slider::tick).withTooltip((gfx, pos) ->
-                gfx.renderTooltip(Minecraft.getInstance().font,
-                        Component.literal("Adjust the slider value"), pos.x, pos.y)));
+        page1.add(new LegacyWidgetWrapper(slider, slider::tick));
 
-        pages.add(page1); // ✅ ページ1登録
+        pages.add(page1);
 
-        // ✅ Page 2
+        // === Page 2 ===
         baseY = 60;
         List<LegacyWidgetWrapper> page2 = new ArrayList<>();
 
@@ -209,16 +216,18 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             SafeConfigManager.setText(text);
             SafeConfigManager.saveConfigSafe();
         });
-        page2.add(new LegacyWidgetWrapper(editBox).withTooltip((gfx, pos) ->
-                gfx.renderTooltip(Minecraft.getInstance().font,
-                        Component.literal("Enter custom text here"), pos.x, pos.y)));
 
-        pages.add(page2); // ✅ ページ2登録
+        // ✅ 正しいイベント登録方法（Forge流）
+        if (screen instanceof ScreenEvent.Init initEvent) {
+            initEvent.addListener(editBox);
+        }
 
-        // ✅ 現在のページのウィジェットのみ表示
+        page2.add(new LegacyWidgetWrapper(editBox));
+
+        pages.add(page2);
+
         widgets.addAll(pages.get(currentPage));
 
-        // ✅ ページ切り替えボタン
         addPageControls(widgets);
     }
 

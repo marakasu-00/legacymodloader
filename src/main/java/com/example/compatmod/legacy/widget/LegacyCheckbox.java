@@ -34,22 +34,26 @@ public class LegacyCheckbox extends Checkbox {
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 描画エリア（外枠）
         int boxX = getX();
         int boxY = getY();
-        System.out.println("Rendering Checkbox: selected = " + selected());
-        graphics.fill(boxX, boxY, boxX + 12, boxY + 12, 0xFFAAAAAA);  // 灰色の四角
 
-        // チェックマーク描画
+        // 外枠
+        graphics.fill(boxX, boxY, boxX + 12, boxY + 12, 0xFFAAAAAA);
+
+        // チェックON時
         if (selected()) {
-            graphics.fill(boxX + 2, boxY + 2, boxX + 10, boxY + 10, 0xFFFFFFFF);  // ✔ 白い中身でON表示
+            graphics.fill(boxX + 2, boxY + 2, boxX + 10, boxY + 10, 0xFFFFFFFF);
         }
 
-        // ラベル
-        int labelX = boxX + 14;
-        int labelY = boxY + 2;
-        graphics.drawString(Minecraft.getInstance().font, label, labelX, labelY, 0xFFFFFF, false);
+        graphics.drawString(Minecraft.getInstance().font, "Enabled", boxX + 14, boxY + 2, 0xFFFFFF, false);
     }
+
+
 
 }
