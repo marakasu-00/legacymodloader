@@ -28,6 +28,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.compatmod.legacy.event.LegacyGuiEventHandler.clearLegacyWidgets;
+
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
 
     private double savedSliderValue = 0.5;
@@ -144,12 +146,10 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     }
 
     private void rebuildGui() {
-        // スクリーンを変更せずに再構築
-        if (screenRef != null) {
-            Minecraft.getInstance().setScreen(null); // ← 一度閉じる（安全策）
-            Minecraft.getInstance().setScreen(screenRef); // 再表示で onGuiInit が再呼び出しされる
-        }
+        // ❌ これは現在の GUI に再入するだけ → ウィジェットが積み重なる
+        Minecraft.getInstance().setScreen(screenRef);
     }
+
 
     private void addPageControls(List<LegacyWidgetWrapper> widgets) {
         int y = 180;
@@ -158,7 +158,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         if (currentPage > 0) {
             Button back = Button.builder(Component.literal("Back"), btn -> {
                 currentPage--;
-                rebuildGui();
+                Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // ✅ 再描画
             }).bounds(x, y, 60, 20).build();
             widgets.add(new LegacyWidgetWrapper(back));
         }
@@ -166,16 +166,20 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         if (currentPage < pages.size() - 1) {
             Button next = Button.builder(Component.literal("Next"), btn -> {
                 currentPage++;
-                rebuildGui();
+                Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // ✅ 再描画
             }).bounds(x + 70, y, 60, 20).build();
             widgets.add(new LegacyWidgetWrapper(next));
         }
     }
 
+
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
         this.screenRef = screen;
         pages.clear();
+
+        // ✅ GUI登録情報のみクリア（Forgeの管理構造は壊さない）
+        clearLegacyWidgets();
 
         int baseX = 10;
         int baseY = 60;
@@ -217,20 +221,22 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
             SafeConfigManager.saveConfigSafe();
         });
 
-        // ✅ 正しいイベント登録方法（Forge流）
-        if (screen instanceof ScreenEvent.Init initEvent) {
-            initEvent.addListener(editBox);
-        }
-
         page2.add(new LegacyWidgetWrapper(editBox));
+
+        baseY += spacing;
+
+        Button submit = Button.builder(Component.literal("Submit"), btn -> {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal(
+                    "You submitted: " + editBox.getValue()));
+        }).bounds(baseX, baseY, 150, 20).build();
+
+        page2.add(new LegacyWidgetWrapper(submit));
 
         pages.add(page2);
 
         widgets.addAll(pages.get(currentPage));
-
         addPageControls(widgets);
     }
-
 
     @Override
     public void onGuiMouseClicked (Screen screen,double mouseX, double mouseY, int button){

@@ -8,8 +8,8 @@ import net.minecraft.network.chat.Component;
 
 public class LegacyConfigScreen extends Screen {
 
-    public LegacyConfigScreen(Component title) {
-        super(title);
+    public LegacyConfigScreen() {
+        super(Component.literal("Legacy Config"));
     }
 
     @Override

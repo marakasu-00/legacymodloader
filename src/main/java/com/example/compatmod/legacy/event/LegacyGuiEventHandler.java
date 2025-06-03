@@ -95,27 +95,21 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
-        System.out.println("=== onGuiInit called ===");
-
-        // 🔁 Forge GUI 初期化時にすべての古い要素をクリア
-        //event.getScreen().children().clear();
         clearLegacyWidgets();
 
-        // 💡 新しいウィジェットリスト生成
         List<LegacyWidgetWrapper> widgets = new ArrayList<>();
-
-        // 🔗 各MODにGUI初期化を通知
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiInit(event.getScreen(), widgets);
         }
 
         for (LegacyWidgetWrapper wrapper : widgets) {
-            event.addListener(wrapper.getWidget());
+            event.addListener(wrapper.getWidget()); // ✅ Forge流のイベント登録
         }
 
-        // 📦 内部状態に保存
         setLegacyWidgets(widgets);
     }
+
+
     public static void setLegacyWidgets(List<LegacyWidgetWrapper> widgets) {
         legacyWidgets.clear();
         legacyWidgets.addAll(widgets);
