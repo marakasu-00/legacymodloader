@@ -2,13 +2,13 @@ package com.example.compatmod.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.io.IOException;
-
 public class SafeConfigManager {
 
     public static void setSlider(double value) {
         if (value >= 0.0 && value <= 1.0) {
             try {
+                ConfigHandler.SLIDER_VALUE.set(value);
+                saveConfigSafe();
             } catch (Exception e) {
                 System.err.println("[SafeConfigManager] Failed to save slider value: " + e.getMessage());
             }
@@ -19,7 +19,8 @@ public class SafeConfigManager {
 
     public static void setCheckboxEnabled(boolean enabled) {
         try {
-
+            ConfigHandler.CHECKBOX_ENABLED.set(enabled);
+            saveConfigSafe();
         } catch (Exception e) {
             System.err.println("[SafeConfigManager] Failed to save checkbox: " + e.getMessage());
         }
@@ -32,7 +33,9 @@ public class SafeConfigManager {
     public static void setText(String text) {
         if (text == null) text = "";
         try {
-
+            System.out.println("[SafeConfigManager] setText called: " + text);
+            ConfigHandler.SAVED_TEXT.set(text); // ✅ textそのものを保存しているか確認
+            saveConfigSafe();
         } catch (Exception e) {
             System.err.println("[SafeConfigManager] Failed to save text: " + e.getMessage());
         }
@@ -40,6 +43,7 @@ public class SafeConfigManager {
 
     public static void saveConfigSafe() {
         try {
+            ConfigHandler.COMMON_CONFIG.save();
         } catch (Exception e) {
             System.err.println("[SafeConfigManager] Failed to save config: " + e.getMessage());
         }

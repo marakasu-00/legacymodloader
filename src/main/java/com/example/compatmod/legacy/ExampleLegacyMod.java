@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -28,6 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.compatmod.config.SafeConfigManager.saveConfigSafe;
 import static com.example.compatmod.legacy.event.LegacyGuiEventHandler.clearLegacyWidgets;
 
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
@@ -146,100 +148,134 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     }
 
     private void rebuildGui() {
-        // ❌ これは現在の GUI に再入するだけ → ウィジェットが積み重なる
-        Minecraft.getInstance().setScreen(screenRef);
+        Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // 新しく生成して完全リセット
     }
 
 
-    private void addPageControls(List<LegacyWidgetWrapper> widgets) {
+    private void addPageControls(List<LegacyWidgetWrapper> widgets, int centerX) {
         int y = 180;
-        int x = 10;
 
         if (currentPage > 0) {
-            Button back = Button.builder(Component.literal("Back"), btn -> {
+            Button back = Button.builder(Component.translatable("compatmod.button.back"), btn -> {
                 currentPage--;
-                Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // ✅ 再描画
-            }).bounds(x, y, 60, 20).build();
+                rebuildGui();
+            }).bounds(centerX - 75, y, 150, 20).build(); // ✅ 修正: .pos → .bounds
             widgets.add(new LegacyWidgetWrapper(back));
         }
 
         if (currentPage < pages.size() - 1) {
-            Button next = Button.builder(Component.literal("Next"), btn -> {
+            Button next = Button.builder(Component.translatable("compatmod.button.next"), btn -> {
                 currentPage++;
-                Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // ✅ 再描画
-            }).bounds(x + 70, y, 60, 20).build();
+                rebuildGui();
+            }).bounds(centerX - 75, y + 25, 150, 20).build(); // ✅ 修正: .pos → .bounds
             widgets.add(new LegacyWidgetWrapper(next));
         }
     }
 
-
     @Override
     public void onGuiInit(Screen screen, List<LegacyWidgetWrapper> widgets) {
-        this.screenRef = screen;
         pages.clear();
 
-        // ✅ GUI登録情報のみクリア（Forgeの管理構造は壊さない）
-        clearLegacyWidgets();
-
-        int baseX = 10;
+        int centerX = screen.width / 2;
         int baseY = 60;
         int spacing = 30;
 
         // === Page 1 ===
         List<LegacyWidgetWrapper> page1 = new ArrayList<>();
 
-        LegacyCheckbox checkbox = new LegacyCheckbox(baseX, baseY, 150, 20,
-                Component.literal("Enabled"),
+        int checkboxWidth = 150;
+        int checkboxX = centerX - checkboxWidth / 2;
+
+        LegacyCheckbox checkbox = new LegacyCheckbox(checkboxX, baseY, checkboxWidth, 20,
+                Component.translatable("compatmod.checkbox.enable_feature"),
                 SafeConfigManager.getCheckbox());
         checkbox.setResponder(checked -> {
             SafeConfigManager.setCheckbox(checked);
-            SafeConfigManager.saveConfigSafe();
+            saveConfigSafe();
         });
         page1.add(new LegacyWidgetWrapper(checkbox));
-
         baseY += spacing;
 
-        LegacySlider slider = new LegacySlider(baseX, baseY, 150, 20,
-                0.0, 1.0, SafeConfigManager.getSlider(), "Brightness");
+        int sliderWidth = 150;
+        int sliderX = centerX - sliderWidth / 2;
+
+        LegacySlider slider = new LegacySlider(sliderX, baseY, sliderWidth, 20,
+                0.0, 1.0, SafeConfigManager.getSlider(),
+                Component.translatable("compatmod.label.brightness"));
         slider.setResponder(val -> {
             SafeConfigManager.setSlider(val);
-            SafeConfigManager.saveConfigSafe();
+            saveConfigSafe();
         });
         page1.add(new LegacyWidgetWrapper(slider, slider::tick));
-
         pages.add(page1);
 
         // === Page 2 ===
         baseY = 60;
         List<LegacyWidgetWrapper> page2 = new ArrayList<>();
 
-        LegacyEditBox editBox = new LegacyEditBox(baseX, baseY, 150, 20);
+        int editBoxWidth = 150;
+        int editBoxX = centerX - editBoxWidth / 2;
+
+        LegacyEditBox editBox = new LegacyEditBox(editBoxX, baseY, editBoxWidth, 20);
         editBox.setMaxLength(50);
-        editBox.setValue(SafeConfigManager.getText() != null ? SafeConfigManager.getText() : "");
+        editBox.setValue(SafeConfigManager.getText());
         editBox.setResponder(text -> {
-            SafeConfigManager.setText(text);
+            System.out.println("[EditBox] 入力内容変更: " + text);
+            SafeConfigManager.setText("[SafeConfigManager] setText called: "  + text);
             SafeConfigManager.saveConfigSafe();
         });
 
-        page2.add(new LegacyWidgetWrapper(editBox));
+        page2.add(new LegacyWidgetWrapper(editBox)
+                .withTooltip((gfx, pos) -> gfx.renderTooltip(
+                        Minecraft.getInstance().font,
+                        Component.translatable("compatmod.editbox.hint"),
+                        pos.x, pos.y)));
 
         baseY += spacing;
 
-        Button submit = Button.builder(Component.literal("Submit"), btn -> {
-            Minecraft.getInstance().player.sendSystemMessage(Component.literal(
-                    "You submitted: " + editBox.getValue()));
-        }).bounds(baseX, baseY, 150, 20).build();
+        Button submitButton = Button.builder(Component.translatable("compatmod.button.submit"), btn -> {
+            String submitted = SafeConfigManager.getText().trim();
 
-        page2.add(new LegacyWidgetWrapper(submit));
+            if (submitted.isEmpty()) {
+                Minecraft.getInstance().player.sendSystemMessage(
+                        Component.literal("⚠ 入力が空です"));
+                return;
+            }
+
+            Minecraft.getInstance().player.sendSystemMessage(
+                    Component.literal("入力内容: " + submitted));
+
+            Minecraft.getInstance().getToasts().addToast(
+                    SystemToast.multiline(
+                            Minecraft.getInstance(),
+                            SystemToast.SystemToastIds.TUTORIAL_HINT,
+                            Component.translatable("compatmod.toast.saved"),
+                            Component.literal(submitted)
+                    )
+            );
+        }).bounds(centerX - 75, baseY, 150, 20).build();
+
+        page2.add(new LegacyWidgetWrapper(submitButton));
 
         pages.add(page2);
 
         widgets.addAll(pages.get(currentPage));
-        addPageControls(widgets);
+        addPageControls(widgets, centerX); // ← centerX を渡して中央化
     }
 
     @Override
     public void onGuiMouseClicked (Screen screen,double mouseX, double mouseY, int button){
         System.out.println("[LegacyExample] Mouse clicked: " + button + " at (" + mouseX + ", " + mouseY + ")");
     }
+    public static void setText(String text) {
+        if (text == null) text = "";
+        try {
+            System.out.println("[SafeConfigManager] Saving text: " + text);
+            ConfigHandler.SAVED_TEXT.set(text);
+            saveConfigSafe();
+        } catch (Exception e) {
+            System.err.println("[SafeConfigManager] Failed to save text: " + e.getMessage());
+        }
+    }
+
 }

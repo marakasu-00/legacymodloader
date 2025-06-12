@@ -29,17 +29,14 @@ public class ConfigHandler {
     }
 
     public static void saveConfigSafe() {
-        try {
-            if (activeConfig != null) {
-                activeConfig.save();  // ← ここが重要！
-            } else {
-                System.err.println("[ConfigHandler] Cannot save: activeConfig is null");
-            }
-        } catch (Exception e) {
-            System.err.println("[ConfigHandler] Failed to save config: " + e.getMessage());
-            e.printStackTrace();
+        if (currentConfig != null) {
+            currentConfig.save();
+            System.out.println("[ConfigHandler] Config saved via ModConfig.");
+        } else {
+            System.err.println("[ConfigHandler] ModConfig not bound!");
         }
     }
+
 
     public static void setSliderValue(double val) {
         SLIDER_VALUE.set(val);
