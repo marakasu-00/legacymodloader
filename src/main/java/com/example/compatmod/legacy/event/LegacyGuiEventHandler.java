@@ -95,20 +95,20 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onGuiInit(ScreenEvent.Init event) {
-        clearLegacyWidgets();
+        clearLegacyWidgets(); // ✔ 登録状態をリセット
 
         List<LegacyWidgetWrapper> widgets = new ArrayList<>();
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onGuiInit(event.getScreen(), widgets);
         }
 
+        // 前のウィジェット登録で画面に残っている描画用部品は Forge 側で自動的に置き換えられる
         for (LegacyWidgetWrapper wrapper : widgets) {
-            event.addListener(wrapper.getWidget()); // ✅ Forge流のイベント登録
+            event.addListener(wrapper.getWidget());
         }
 
-        setLegacyWidgets(widgets);
+        setLegacyWidgets(widgets); // ✔ 描画対象もリセット
     }
-
 
     public static void setLegacyWidgets(List<LegacyWidgetWrapper> widgets) {
         legacyWidgets.clear();

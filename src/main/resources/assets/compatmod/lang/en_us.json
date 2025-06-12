@@ -1,0 +1,9 @@
+{
+  "compatmod.button.submit": "Submit",
+  "compatmod.button.back": "Back",
+  "compatmod.button.next": "Next",
+  "compatmod.checkbox.enable_feature": "Enabled",
+  "compatmod.label.brightness": "Brightness",
+  "compatmod.editbox.hint": "Enter text here",
+  "compatmod.toast.saved": "completed submission"
+}

@@ -39,13 +39,12 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     private boolean checkboxChecked = false;
     private String savedInputText = "";
     private int savedCursorPos = 0;
-    private LegacyEditBox legacyEditBox;
     private String savedText = "";
     private int savedCursor = 0;
     private LegacyCheckbox checkbox;
     private final List<List<LegacyWidgetWrapper>> pages = new ArrayList<>();
     private int currentPage = 0;
-    private Screen screenRef; // 現在のスクリーン参照（再構築時に使用）
+
 
 
     public ExampleLegacyMod() {
@@ -115,10 +114,6 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onScreenOpen(Screen screen) {
-        if (legacyEditBox != null) {
-            savedText = legacyEditBox.getValue();
-            savedCursor = legacyEditBox.getCursorPosition();
-        }
 
         if (screen instanceof InventoryScreen) {
             System.out.println("インベントリ画面が開かれました！");
@@ -150,7 +145,6 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     private void rebuildGui() {
         Minecraft.getInstance().setScreen(new LegacyConfigScreen()); // 新しく生成して完全リセット
     }
-
 
     private void addPageControls(List<LegacyWidgetWrapper> widgets, int centerX) {
         int y = 180;

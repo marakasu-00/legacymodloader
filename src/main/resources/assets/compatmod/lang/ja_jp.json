@@ -1,0 +1,9 @@
+{
+  "compatmod.button.submit": "送信",
+  "compatmod.button.back": "戻る",
+  "compatmod.button.next": "次へ",
+  "compatmod.checkbox.enable_feature": "有効化",
+  "compatmod.label.brightness": "明るさ",
+  "compatmod.editbox.hint": "ここに入力してください",
+  "compatmod.toast.saved": "送信完了"
+}

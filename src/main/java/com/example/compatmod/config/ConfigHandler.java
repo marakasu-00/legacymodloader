@@ -15,16 +15,12 @@ public class ConfigHandler {
     public static final ForgeConfigSpec.BooleanValue CHECKBOX_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> SAVED_TEXT;
 
-    private static ModConfig activeConfig;
-
-    public static void bindConfig(ModConfig config) {
-        activeConfig = config;
-    }
+    private static ModConfig currentConfig;
 
     @SubscribeEvent
     public static void onConfigLoad(ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == COMMON_CONFIG) {
-            activeConfig = event.getConfig();
+            currentConfig = event.getConfig(); // 正しく currentConfig を設定
         }
     }
 
@@ -64,6 +60,7 @@ public class ConfigHandler {
 
         COMMON_CONFIG = builder.build();
     }
+
 
     @SuppressWarnings("removal")
     public static void register() {
