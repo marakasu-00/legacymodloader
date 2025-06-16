@@ -11,3 +11,4 @@ can create a channel via `LegacyNetworkManager.createChannel(modId)` and
 register packets implementing `LegacyPacket`. Packets can then be sent
 to the server or specific players using the methods on
 `LegacyNetworkChannel`.
+
