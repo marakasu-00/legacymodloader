@@ -132,6 +132,8 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
     implementation 'com.google.code.gson:gson:2.10.1'
 
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
@@ -197,4 +199,8 @@ processResources {
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand([project: project]) // mods.toml内に${}がなければこのままでOK
     }
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
 }
