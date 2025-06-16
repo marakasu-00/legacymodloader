@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -15,6 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.apache.commons.lang3.function.TriFunction;
+import com.example.compatmod.legacy.mapping.LegacyIdMapping;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -22,17 +24,23 @@ import java.util.function.Supplier;
 @SuppressWarnings("removal")
 public class LegacyGameRegistry {
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "compatmod");
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "compatmod");
+    public static final String MODID = "compatmod";
+
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, "legacymodloader");
 
     public static void registerItem(Item item, String name) {
         ITEMS.register(name, () -> item);
+        LegacyIdMapping.registerItemMapping(name, 0, new ResourceLocation(MODID, name));
     }
 
     public static void registerBlock(Block block, String name) {
         BLOCKS.register(name, () -> block);
+        LegacyIdMapping.registerBlockMapping(name, 0, new ResourceLocation(MODID, name));
+        // also map the block item for legacy references
+        LegacyIdMapping.registerItemMapping(name, 0, new ResourceLocation(MODID, name));
     }
 
     public static DeferredRegister<Item> getItemRegister() {
@@ -49,6 +57,7 @@ public class LegacyGameRegistry {
         com.example.compatmod.legacy.api.CreativeTabs.TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
     public static RegistryObject<Item> registerItem(String name, Supplier<Item> supplier) {
+        LegacyIdMapping.registerItemMapping(name, 0, new ResourceLocation(MODID, name));
         return ITEMS.register(name, supplier);
     }
     public static RegistryObject<Block> registerBlock(String name, Supplier<Block> supplier) {
@@ -56,6 +65,8 @@ public class LegacyGameRegistry {
         RegistryObject<Block> block = BLOCKS.register(name, supplier);
         // ブロックアイテムも同時に登録
         ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+        LegacyIdMapping.registerBlockMapping(name, 0, new ResourceLocation(MODID, name));
+        LegacyIdMapping.registerItemMapping(name, 0, new ResourceLocation(MODID, name));
         return block;
     }
     public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(
@@ -88,6 +99,14 @@ public class LegacyGameRegistry {
         );
 
         return holder[0];
+    }
+
+    public static Item getMappedItem(String oldId, int metadata) {
+        return LegacyIdMapping.getItem(oldId, metadata);
+    }
+
+    public static Block getMappedBlock(String oldId, int metadata) {
+        return LegacyIdMapping.getBlock(oldId, metadata);
     }
 
 
