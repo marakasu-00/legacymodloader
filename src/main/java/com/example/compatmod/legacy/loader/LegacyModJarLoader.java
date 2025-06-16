@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.*;
 import java.net.URL;
@@ -28,6 +29,11 @@ public class LegacyModJarLoader {
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
+        File assetsDir = FMLPaths.GAMEDIR.get().resolve("run/resources/assets").toFile();
+        if (!assetsDir.exists()) {
+            assetsDir.mkdirs();
+        }
+
         for (File jar : jars) {
             try {
                 // 自分自身のJARファイルはスキップ
@@ -35,6 +41,9 @@ public class LegacyModJarLoader {
                     System.out.println("[LegacyModJarLoader] Skipped own mod jar: " + jar.getName());
                     continue;
                 }
+
+                // Extract legacy assets from this jar
+                extractLegacyAssets(jar, assetsDir);
 
                 URL jarUrl = jar.toURI().toURL();
                 URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
@@ -62,6 +71,9 @@ public class LegacyModJarLoader {
                 e.printStackTrace();
             }
         }
+
+        // After extraction, ensure the assets path is registered
+        LegacyModResources.checkLegacyAssetsExist();
 
         return loadedClasses;
     }
