@@ -16,6 +16,7 @@ public class LegacyNetworkChannel {
     private final SimpleChannel channel;
     private int id = 0;
 
+    @SuppressWarnings("removal")
     public LegacyNetworkChannel(String modId) {
         channel = NetworkRegistry.ChannelBuilder
                 .named(new ResourceLocation(modId, "legacy"))
