@@ -17,7 +17,7 @@ public class LegacyModResourceHelperTest {
         System.setProperty("user.dir", gamedir.toString());
         FMLPaths.loadAbsolutePaths(gamedir);
 
-        Path sourceDir = Paths.get("run/resources/assets");
+        Path sourceDir = FMLPaths.GAMEDIR.get().resolve("run/resources/assets");
         Files.createDirectories(sourceDir);
         Path testFile = sourceDir.resolve("dummy.txt");
         Files.writeString(testFile, "hello", StandardOpenOption.CREATE, StandardOpenOption.WRITE);
