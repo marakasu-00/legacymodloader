@@ -28,9 +28,9 @@ public class LegacyModLoader {
         ModBlockEntities.register(); // ← 登録！
 
         // レガシーMODロード開始
-        //File modsFolder = new File("mods");
-        //LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
-        //loader.loadAllLegacyMods();
+        File modsFolder = new File("mods");
+        LegacyModJarLoader loader = new LegacyModJarLoader(modsFolder);
+        loader.loadAllLegacyMods();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::doClientStuff);
         modEventBus.addListener(this::commonSetup);
