@@ -16,6 +16,7 @@ public class LegacySimpleChannel {
     private final SimpleChannel channel;
     private int index = 0;
 
+    @SuppressWarnings("removal")
     public LegacySimpleChannel(String name) {
         ResourceLocation id = new ResourceLocation("legacymodloader", name);
         channel = NetworkRegistry.ChannelBuilder.named(id)
