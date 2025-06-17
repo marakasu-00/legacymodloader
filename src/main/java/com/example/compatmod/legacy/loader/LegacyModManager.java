@@ -29,9 +29,18 @@ public class LegacyModManager {
 
     private static final List<ILegacyMod> legacyMods = new ArrayList<>();
 
-    public static void loadLegacyMods() {
+    /**
+     * Default directory where legacy mod jars are located.
+     */
+    public static final Path DEFAULT_LEGACY_MODS_DIR = Paths.get("run", "mods", "legacy");
 
-        Path legacyModsDir = Paths.get("mods", "Legacy");
+    /**
+     * Directory to look for legacy mods. Can be reassigned before loading mods
+     * to customise the location.
+     */
+    public static Path legacyModsDir = DEFAULT_LEGACY_MODS_DIR;
+
+    public static void loadLegacyMods() {
 
         if (!Files.exists(legacyModsDir)) {
             System.out.println("[LegacyModLoader] No legacy mod folder found.");
