@@ -46,9 +46,8 @@ public class LegacyModJarLoader {
                 extractLegacyAssets(jar, assetsDir);
 
                 URL jarUrl = jar.toURI().toURL();
-                URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
-
-                try (JarFile jarFile = new JarFile(jar)) {
+                try (URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
+                     JarFile jarFile = new JarFile(jar)) {
                     Enumeration<JarEntry> entries = jarFile.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
