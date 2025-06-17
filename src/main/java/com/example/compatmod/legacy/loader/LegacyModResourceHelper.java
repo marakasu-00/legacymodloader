@@ -4,11 +4,12 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.stream.Stream;
 
 public class LegacyModResourceHelper {
 
     public static void loadLegacyResources() {
-        Path sourceDir = Paths.get("run/assets");
+        Path sourceDir = Paths.get("run/resources/assets");
         Path targetDir = FMLPaths.GAMEDIR.get().resolve("legacy_assets");
 
         if (!Files.exists(sourceDir)) {
@@ -16,8 +17,8 @@ public class LegacyModResourceHelper {
             return;
         }
 
-        try {
-            Files.walk(sourceDir).forEach(source -> {
+        try (Stream<Path> paths = Files.walk(sourceDir)) {
+            paths.forEach(source -> {
                 try {
                     Path dest = targetDir.resolve(sourceDir.relativize(source));
                     if (Files.isDirectory(source)) {
