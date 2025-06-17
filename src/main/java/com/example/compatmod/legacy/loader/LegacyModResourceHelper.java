@@ -2,6 +2,8 @@ package com.example.compatmod.legacy.loader;
 
 import net.minecraftforge.fml.loading.FMLPaths;
 
+import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.stream.Stream;
@@ -9,7 +11,7 @@ import java.util.stream.Stream;
 public class LegacyModResourceHelper {
 
     public static void loadLegacyResources() {
-        Path sourceDir = Paths.get("run/resources/assets");
+        Path sourceDir = LEGACY_ASSETS_PATH;
         Path targetDir = FMLPaths.GAMEDIR.get().resolve("legacy_assets");
 
         if (!Files.exists(sourceDir)) {

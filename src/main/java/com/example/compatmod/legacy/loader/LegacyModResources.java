@@ -14,11 +14,13 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import java.io.File;
 import java.nio.file.Path;
 
+import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
+
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class LegacyModResources {
 
     public static boolean checkLegacyAssetsExist() {
-        Path legacyAssetsPath = new File("run/resources/assets").toPath();
+        Path legacyAssetsPath = LEGACY_ASSETS_PATH;
 
         if (!legacyAssetsPath.toFile().exists()) {
             System.out.println("[LegacyLoader] No legacy assets found at: " + legacyAssetsPath);
@@ -32,7 +34,7 @@ public class LegacyModResources {
     @SubscribeEvent
     public static void onAddPackFinders(AddPackFindersEvent event) {
         if (event.getPackType() == PackType.CLIENT_RESOURCES) {
-            Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve("run/resources/assets");
+            Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
             if (legacyAssetsPath.toFile().exists()) {
                 System.out.println("[LegacyLoader] Registering legacy assets path: " + legacyAssetsPath);
