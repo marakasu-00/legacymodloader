@@ -5,15 +5,9 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 /**
- * Simple packet handler functional interface.
+ * Handler for legacy packets. Implementations should process the message and
+ * mark the packet as handled when done.
  */
-@FunctionalInterface
 public interface LegacyPacketHandler<T extends LegacyPacket> {
-    /**
-     * Handles the packet.
-     *
-     * @param message packet instance
-     * @param context network context
-     */
     void handle(T message, Supplier<NetworkEvent.Context> context);
 }
