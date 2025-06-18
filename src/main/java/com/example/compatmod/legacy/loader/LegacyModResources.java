@@ -20,7 +20,7 @@ import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH
 public class LegacyModResources {
 
     public static boolean checkLegacyAssetsExist() {
-        Path legacyAssetsPath = LEGACY_ASSETS_PATH;
+        Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
         if (!legacyAssetsPath.toFile().exists()) {
             System.out.println("[LegacyLoader] No legacy assets found at: " + legacyAssetsPath);

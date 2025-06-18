@@ -32,7 +32,7 @@ public class LegacyModManager {
     /**
      * Default directory where legacy mod jars are located.
      */
-    public static final Path DEFAULT_LEGACY_MODS_DIR = Paths.get("run", "mods", "legacy");
+    public static final Path DEFAULT_LEGACY_MODS_DIR = Paths.get("mods", "legacy");
 
     /**
      * Directory to look for legacy mods. Can be reassigned before loading mods
