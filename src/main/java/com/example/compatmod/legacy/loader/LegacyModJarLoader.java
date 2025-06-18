@@ -3,6 +3,8 @@ package com.example.compatmod.legacy.loader;
 import com.example.compatmod.legacy.api.ILegacyMod;
 import net.minecraftforge.fml.loading.FMLPaths;
 
+import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -29,7 +31,7 @@ public class LegacyModJarLoader {
         File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jars == null) return loadedClasses;
 
-        File assetsDir = FMLPaths.GAMEDIR.get().resolve("run/resources/assets").toFile();
+        File assetsDir = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH).toFile();
         if (!assetsDir.exists()) {
             assetsDir.mkdirs();
         }
