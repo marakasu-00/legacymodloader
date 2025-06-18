@@ -5,6 +5,7 @@ import com.example.compatmod.init.ModBlockEntities;
 import com.example.compatmod.legacy.loader.LegacyModJarLoader;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.loader.LegacyModResourceHelper;
+import com.example.compatmod.legacy.loader.LegacyModAssetLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -62,6 +63,7 @@ public class LegacyModLoader {
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         // クライアント専用の初期化処理
+        LegacyModAssetLoader.loadLegacyAssets();
         LegacyModResourceHelper.loadLegacyResources();
     }
 }

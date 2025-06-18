@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class LegacyModResourceHelper {
 
     public static void loadLegacyResources() {
-        Path sourceDir = LEGACY_ASSETS_PATH;
+        Path sourceDir = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
         Path targetDir = FMLPaths.GAMEDIR.get().resolve("legacy_assets");
 
         if (!Files.exists(sourceDir)) {
