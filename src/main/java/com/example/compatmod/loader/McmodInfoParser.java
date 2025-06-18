@@ -14,19 +14,40 @@ public class McmodInfoParser {
 
     public static List<String> parseDependencies(Path modJarPath) throws IOException {
         List<String> dependencies = new ArrayList<>();
-        Path mcmodInfoPath = modJarPath.resolve("mcmod.info");
 
-        if (Files.exists(mcmodInfoPath)) {
-            String content = Files.readString(mcmodInfoPath);
-            JsonArray modInfoArray = JsonParser.parseString(content).getAsJsonArray();
+        if (Files.isRegularFile(modJarPath) && modJarPath.toString().endsWith(".jar")) {
+            try (java.nio.file.FileSystem fs = java.nio.file.FileSystems.newFileSystem(modJarPath, (ClassLoader) null)) {
+                Path mcmodInfoPath = fs.getPath("mcmod.info");
+                if (Files.exists(mcmodInfoPath)) {
+                    String content = Files.readString(mcmodInfoPath);
+                    JsonArray modInfoArray = JsonParser.parseString(content).getAsJsonArray();
 
-            for (var element : modInfoArray) {
-                JsonObject modInfo = element.getAsJsonObject();
-                if (modInfo.has("dependencies")) {
-                    String dependencyString = modInfo.get("dependencies").getAsString();
-                    String[] dependencyArray = dependencyString.split(";");
-                    for (String dependency : dependencyArray) {
-                        dependencies.add(dependency.trim());
+                    for (var element : modInfoArray) {
+                        JsonObject modInfo = element.getAsJsonObject();
+                        if (modInfo.has("dependencies")) {
+                            String dependencyString = modInfo.get("dependencies").getAsString();
+                            String[] dependencyArray = dependencyString.split(";");
+                            for (String dependency : dependencyArray) {
+                                dependencies.add(dependency.trim());
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Path mcmodInfoPath = modJarPath.resolve("mcmod.info");
+            if (Files.exists(mcmodInfoPath)) {
+                String content = Files.readString(mcmodInfoPath);
+                JsonArray modInfoArray = JsonParser.parseString(content).getAsJsonArray();
+
+                for (var element : modInfoArray) {
+                    JsonObject modInfo = element.getAsJsonObject();
+                    if (modInfo.has("dependencies")) {
+                        String dependencyString = modInfo.get("dependencies").getAsString();
+                        String[] dependencyArray = dependencyString.split(";");
+                        for (String dependency : dependencyArray) {
+                            dependencies.add(dependency.trim());
+                        }
                     }
                 }
             }
