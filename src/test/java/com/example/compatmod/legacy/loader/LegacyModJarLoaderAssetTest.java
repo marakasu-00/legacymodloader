@@ -35,7 +35,7 @@ public class LegacyModJarLoaderAssetTest {
             LegacyModJarLoader loader = new LegacyModJarLoader(modsDir.toFile());
             loader.loadAllLegacyMods();
 
-            Path extracted = gamedir.resolve("run/resources/assets/testmod/sample.txt");
+            Path extracted = gamedir.resolve("resources/assets/testmod/sample.txt");
             assertTrue(Files.exists(extracted), "Asset should be extracted to run/resources/assets");
             assertEquals("hello", Files.readString(extracted));
         } finally {
