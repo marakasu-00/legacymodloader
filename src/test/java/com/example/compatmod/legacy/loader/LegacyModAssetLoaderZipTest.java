@@ -19,6 +19,7 @@ public class LegacyModAssetLoaderZipTest {
         System.setProperty("user.dir", gamedir.toString());
         FMLPaths.loadAbsolutePaths(gamedir);
 
+
         Path modsDir = gamedir.resolve("mods").resolve("legacy");
         Files.createDirectories(modsDir);
         Path zipPath = modsDir.resolve("assets_pack.zip");
@@ -33,6 +34,7 @@ public class LegacyModAssetLoaderZipTest {
 
         try {
             LegacyModAssetLoader.loadLegacyAssets();
+
 
             Path extracted = gamedir.resolve("resources/assets/testpack/sample.txt");
             assertTrue(Files.exists(extracted), "Asset should be extracted to run/resources/assets");
@@ -76,6 +78,7 @@ public class LegacyModAssetLoaderZipTest {
 
             Path miscFile = gamedir.resolve("resources/legacy_misc/misc_pack/textures/example.png");
             assertTrue(Files.exists(miscFile), "Texture should be extracted under legacy_misc");
+
         } finally {
             System.setProperty("user.dir", originalDir);
             Files.walk(gamedir)
