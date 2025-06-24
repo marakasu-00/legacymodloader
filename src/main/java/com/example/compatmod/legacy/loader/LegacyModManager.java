@@ -2,6 +2,7 @@ package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
 import com.google.gson.*;
+import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.client.event.InputEvent;
 
@@ -23,9 +24,12 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
 
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LegacyModManager {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final List<ILegacyMod> legacyMods = new ArrayList<>();
 
@@ -73,14 +77,14 @@ public class LegacyModManager {
 
                     } catch (Exception e) {
                         System.err.println("[LegacyModLoader] Failed to load mod class: " + mainClassName.get());
-                        e.printStackTrace();
+                        LOGGER.error("[LegacyLoader] Failed to load mod class {}", mainClassName.get(), e);
                     }
                 } else {
                     System.out.println("[LegacyModLoader] No main class found for: " + jar.getFileName());
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Error scanning legacy mods directory", e);
         }
         // --- 仮で ExampleLegacyMod を手動登録 ---
         com.example.compatmod.legacy.ExampleLegacyMod exampleMod = new com.example.compatmod.legacy.ExampleLegacyMod();
@@ -115,14 +119,14 @@ public class LegacyModManager {
                                     }
                                 }, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                LOGGER.error("[LegacyLoader] Failed reading class {}", path, e);
                             }
                         });
 
                 if (result[0].isPresent()) return result[0];
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed scanning jar {}", jarPath, e);
         }
         return Optional.empty();
     }
@@ -140,7 +144,7 @@ public class LegacyModManager {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed reading mods.toml", e);
         }
         return Optional.empty();
     }
@@ -154,7 +158,7 @@ public class LegacyModManager {
                 return Optional.of(arr.get(0).getAsJsonObject().get("modid").getAsString());
             }
         } catch (IOException | JsonParseException e) {
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed reading mcmod.info", e);
         }
         return Optional.empty();
     }
@@ -171,7 +175,7 @@ public class LegacyModManager {
                 }
             }
         } catch (IOException | JsonParseException e) {
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed reading mcmod.info", e);
         }
         return Optional.empty();
     }

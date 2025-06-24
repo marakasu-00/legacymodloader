@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.mojang.logging.LogUtils;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
@@ -14,8 +15,13 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.slf4j.Logger;
 
 public class LegacyModJarLoader {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final File legacyModsFolder;
     private final String thisModFileName;
@@ -69,7 +75,7 @@ public class LegacyModJarLoader {
                 }
             } catch (IOException e) {
                 System.err.println("[LegacyLoader] Failed to process jar: " + jar.getName());
-                e.printStackTrace();
+                LOGGER.error("[LegacyLoader] Failed to process jar {}", jar.getName(), e);
             }
         }
 
@@ -86,7 +92,19 @@ public class LegacyModJarLoader {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("assets/") && !entry.isDirectory()) { // ←ここ追加
                     String relativePath = entry.getName().substring("assets/".length());
-                    File outFile = new File(outputDir, relativePath);
+                    Path relative = Paths.get(relativePath).normalize();
+                    if (relative.isAbsolute() || relative.startsWith("..")) {
+                        System.err.println("[LegacyLoader] Skipping suspicious asset path: " + relativePath);
+                        continue;
+                    }
+
+                    Path outPath = outputDir.toPath().resolve(relative).normalize();
+                    if (!outPath.startsWith(outputDir.toPath().normalize())) {
+                        System.err.println("[LegacyLoader] Skipping asset escaping output directory: " + relativePath);
+                        continue;
+                    }
+
+                    File outFile = outPath.toFile();
 
                     File parent = outFile.getParentFile();
                     if (parent != null && !parent.exists()) {
@@ -102,7 +120,7 @@ public class LegacyModJarLoader {
             }
         } catch (IOException e) {
             System.err.println("[LegacyLoader] Failed to extract assets: " + legacyJar.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to extract assets from {}", legacyJar.getName(), e);
         }
     }
 
@@ -128,7 +146,7 @@ public class LegacyModJarLoader {
 
         } catch (Exception e) {
             System.err.println("[LegacyLoader] Failed to initialize mod class: " + clazz.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to initialize mod class {}", clazz.getName(), e);
         }
     }
 
