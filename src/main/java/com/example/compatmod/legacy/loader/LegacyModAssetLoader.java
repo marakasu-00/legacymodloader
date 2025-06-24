@@ -78,7 +78,7 @@ public final class LegacyModAssetLoader {
 
                 if (name.startsWith("assets/")) {
                     foundAsset = true;
-                    Path relative = Paths.get(name).subpath(1, Paths.get(name).getNameCount());
+                    Path relative = Paths.get(name);
                     Path target = outputDir.resolve(relative);
                     Files.createDirectories(target.getParent());
                     try (InputStream in = zipFile.getInputStream(entry); OutputStream out = Files.newOutputStream(target, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -91,7 +91,14 @@ public final class LegacyModAssetLoader {
                     Files.copy(target, dup, StandardCopyOption.REPLACE_EXISTING);
                 } else if (isLegacyResource(name)) {
                     foundAsset = true;
-                    Path target = miscDir.resolve(archive.getFileName().toString()).resolve(name);
+
+                    String archiveBaseName = archive.getFileName().toString();
+                    int dot = archiveBaseName.lastIndexOf('.');
+                    if (dot != -1) {
+                        archiveBaseName = archiveBaseName.substring(0, dot);
+                    }
+                    Path target = miscDir.resolve(archiveBaseName).resolve(name);
+
                     Files.createDirectories(target.getParent());
                     try (InputStream in = zipFile.getInputStream(entry)) {
                         Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
