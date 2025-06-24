@@ -2,7 +2,7 @@ package com.example.compatmod.legacy.loader;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
+import com.example.compatmod.legacy.loader.LegacyResourcePack;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -44,7 +44,7 @@ public class LegacyModResources {
                             "legacy_assets",
                             Component.literal("Legacy Assets"), // ここ重要！
                             true,
-                            (factory) -> new PathPackResources("legacy_assets", legacyAssetsPath, true),
+                            (factory) -> new LegacyResourcePack("legacy_assets", legacyAssetsPath, true),
                             PackType.CLIENT_RESOURCES,
                             Pack.Position.TOP,
                             PackSource.BUILT_IN
