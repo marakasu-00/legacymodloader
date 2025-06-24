@@ -5,7 +5,6 @@ import com.example.compatmod.legacy.loader.LegacyModResourceHelper;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
 import java.nio.file.StandardOpenOption;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +17,7 @@ public class LegacyModResourceHelperTest {
         System.setProperty("user.dir", gamedir.toString());
         FMLPaths.loadAbsolutePaths(gamedir);
 
-        Path sourceDir = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
+        Path sourceDir = FMLPaths.GAMEDIR.get().resolve("resources").resolve("assets");
         Files.createDirectories(sourceDir);
         Path testFile = sourceDir.resolve("dummy.txt");
         Files.writeString(testFile, "hello", StandardOpenOption.CREATE, StandardOpenOption.WRITE);
