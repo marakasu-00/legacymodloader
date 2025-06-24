@@ -120,14 +120,18 @@ public class LegacyModResources {
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
 
                 event.addRepositorySource(consumer -> {
+
                     Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
+
                     Pack pack = Pack.readMetaAndCreate(
                             "legacy_assets",
                             Component.literal("Legacy Assets"),
                             true,
                             (factory) -> new PathPackResources("legacy_assets", legacyAssetsPath, true),
                             PackType.CLIENT_RESOURCES,
+
                             position,
+
                             PackSource.BUILT_IN
                     );
 

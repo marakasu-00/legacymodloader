@@ -8,7 +8,7 @@ be either `.jar` or `.zip` archives. The location can be changed by modifying
 `LegacyModManager.legacyModsDir` before initialisation.
 
 When a legacy mod is processed, any resources under its `assets/` directory are
-extracted to `run/resources/assets/`. Other legacy data is extracted to
+extracted to `run/legacy_assets/`. Other legacy data is extracted to
 `run/resources/legacy_misc/`. Existing files in these destinations are
 overwritten when duplicates are encountered.
 ## Legacy Networking
