@@ -78,17 +78,29 @@ public final class LegacyModAssetLoader {
 
                 if (name.startsWith("assets/")) {
                     foundAsset = true;
-                    Path relative = Paths.get(name);
-                    Path target = outputDir.resolve(relative);
+                    Path relative = Paths.get(name).normalize();
+                    if (relative.isAbsolute() || relative.startsWith("..")) {
+                        LOGGER.warn("[LegacyLoader] Skipping suspicious entry {} from {}", name, archive.getFileName());
+                        continue;
+                    }
+
+                    Path target = outputDir.resolve(relative).normalize();
+                    if (!target.startsWith(outputDir.normalize())) {
+                        LOGGER.warn("[LegacyLoader] Skipping entry {} escaping output directory", name);
+                        continue;
+                    }
+
                     Files.createDirectories(target.getParent());
                     try (InputStream in = zipFile.getInputStream(entry); OutputStream out = Files.newOutputStream(target, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
                         in.transferTo(out);
                     }
                     LOGGER.info("[LegacyLoader] Extracted {} from {}", relative, archive.getFileName());
 
-                    Path dup = duplicateDir.resolve(relative);
-                    Files.createDirectories(dup.getParent());
-                    Files.copy(target, dup, StandardCopyOption.REPLACE_EXISTING);
+                    Path dup = duplicateDir.resolve(relative).normalize();
+                    if (dup.startsWith(duplicateDir.normalize())) {
+                        Files.createDirectories(dup.getParent());
+                        Files.copy(target, dup, StandardCopyOption.REPLACE_EXISTING);
+                    }
                 } else if (isLegacyResource(name)) {
                     foundAsset = true;
 
@@ -97,11 +109,14 @@ public final class LegacyModAssetLoader {
                     if (dot != -1) {
                         archiveBaseName = archiveBaseName.substring(0, dot);
                     }
-                    Path target = miscDir.resolve(archiveBaseName).resolve(name);
-
-                    Files.createDirectories(target.getParent());
-                    try (InputStream in = zipFile.getInputStream(entry)) {
-                        Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+                    Path miscTarget = miscDir.resolve(archiveBaseName).resolve(name).normalize();
+                    if (miscTarget.startsWith(miscDir.normalize())) {
+                        Files.createDirectories(miscTarget.getParent());
+                        try (InputStream in = zipFile.getInputStream(entry)) {
+                            Files.copy(in, miscTarget, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    } else {
+                        LOGGER.warn("[LegacyLoader] Skipping entry {} escaping misc directory", name);
                     }
                 }
             }
