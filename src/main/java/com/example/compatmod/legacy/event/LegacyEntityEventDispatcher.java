@@ -6,6 +6,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = "legacymodloader")
 public class LegacyEntityEventDispatcher {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final List<ILegacyEntityEventListener> LISTENERS = new ArrayList<>();
 
     /**
@@ -23,7 +27,7 @@ public class LegacyEntityEventDispatcher {
      */
     public static void register(ILegacyEntityEventListener listener) {
         LISTENERS.add(listener);
-        System.out.println("[LegacyEntityEventDispatcher] Registered listener: " + listener.getClass().getName());
+        LOGGER.info("[LegacyEntityEventDispatcher] Registered listener: {}", listener.getClass().getName());
     }
 
     /**

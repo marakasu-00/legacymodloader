@@ -10,6 +10,8 @@ import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -19,15 +21,17 @@ import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class LegacyModResources {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static boolean checkLegacyAssetsExist() {
         Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
         if (!legacyAssetsPath.toFile().exists()) {
-            System.out.println("[LegacyLoader] No legacy assets found at: " + legacyAssetsPath);
+            LOGGER.warn("[LegacyLoader] No legacy assets found at: {}", legacyAssetsPath);
             return false;
         }
 
-        System.out.println("[LegacyLoader] Legacy assets detected at: " + legacyAssetsPath);
+        LOGGER.info("[LegacyLoader] Legacy assets detected at: {}", legacyAssetsPath);
         return true;
     }
 
@@ -37,7 +41,7 @@ public class LegacyModResources {
             Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
             if (legacyAssetsPath.toFile().exists()) {
-                System.out.println("[LegacyLoader] Registering legacy assets path: " + legacyAssetsPath);
+                LOGGER.info("[LegacyLoader] Registering legacy assets path: {}", legacyAssetsPath);
 
                 event.addRepositorySource(consumer -> {
                     Pack pack = Pack.readMetaAndCreate(
@@ -55,7 +59,7 @@ public class LegacyModResources {
                     }
                 });
             } else {
-                System.out.println("[LegacyLoader] No legacy assets found to register at: " + legacyAssetsPath);
+                LOGGER.warn("[LegacyLoader] No legacy assets found to register at: {}", legacyAssetsPath);
             }
         }
     }

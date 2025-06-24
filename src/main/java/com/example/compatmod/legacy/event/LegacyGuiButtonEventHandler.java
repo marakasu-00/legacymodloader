@@ -14,17 +14,20 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent.Init;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiButtonEventHandler {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @SubscribeEvent
     public static void onGuiInitPost(ScreenEvent.Init.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.font == null) {
-            System.err.println("[LegacyExample] Minecraft or font is not ready.");
+            LOGGER.warn("[LegacyExample] Minecraft or font is not ready.");
             return;
         }
 
@@ -37,11 +40,11 @@ public class LegacyGuiButtonEventHandler {
             String input = editBox.getValue().trim();
 
             if (input.isEmpty()) {
-                System.out.println("[LegacyExample] 入力は空です。");
+                LOGGER.info("[LegacyExample] 入力は空です。");
             } else if (!input.matches("^[a-zA-Z0-9]+$")) {
-                System.out.println("[LegacyExample] 入力には英数字のみ使用してください。");
+                LOGGER.warn("[LegacyExample] 入力には英数字のみ使用してください。");
             } else {
-                System.out.println("[LegacyExample] 有効な入力: " + input);
+                LOGGER.info("[LegacyExample] 有効な入力: {}", input);
             }
         }).pos(10, 150).size(100, 20).build();
 
@@ -53,7 +56,7 @@ public class LegacyGuiButtonEventHandler {
         Screen screen = event.getScreen();
 
         Button button = Button.builder(Component.literal("Legacy Button"), btn -> {
-            System.out.println("[LegacyExample] Legacy Button clicked!");
+            LOGGER.info("[LegacyExample] Legacy Button clicked!");
         }).pos(10, 30).size(100, 20).build();
 
         widgets.add(new LegacyWidgetWrapper(button));

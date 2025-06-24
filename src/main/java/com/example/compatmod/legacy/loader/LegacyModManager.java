@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +29,8 @@ import org.objectweb.asm.Opcodes;
 
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LegacyModManager {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final List<ILegacyMod> legacyMods = new ArrayList<>();
 
@@ -43,7 +48,7 @@ public class LegacyModManager {
     public static void loadLegacyMods() {
 
         if (!Files.exists(legacyModsDir)) {
-            System.out.println("[LegacyModLoader] No legacy mod folder found.");
+            LOGGER.warn("[LegacyModLoader] No legacy mod folder found.");
             return;
         }
 
@@ -65,18 +70,17 @@ public class LegacyModManager {
                         if (modInstance instanceof ILegacyMod legacyMod) {
                             LegacyModManager.addMod(legacyMod); // ちゃんとリストに登録
                             legacyMod.onLoad(); // <- ここでonLoadを呼び出す！
-                            System.out.println("[LegacyModLoader] Loaded legacy mod (ILegacyMod): " + mainClassName.get());
+                            LOGGER.info("[LegacyModLoader] Loaded legacy mod (ILegacyMod): {}", mainClassName.get());
                         } else {
                             MinecraftForge.EVENT_BUS.register(modInstance); // 通常のMODクラスならForgeイベントバスへ登録
-                            System.out.println("[LegacyModLoader] Loaded standard mod: " + mainClassName.get());
+                            LOGGER.info("[LegacyModLoader] Loaded standard mod: {}", mainClassName.get());
                         }
 
                     } catch (Exception e) {
-                        System.err.println("[LegacyModLoader] Failed to load mod class: " + mainClassName.get());
-                        e.printStackTrace();
+                        LOGGER.error("[LegacyModLoader] Failed to load mod class: {}", mainClassName.get(), e);
                     }
                 } else {
-                    System.out.println("[LegacyModLoader] No main class found for: " + jar.getFileName());
+                    LOGGER.warn("[LegacyModLoader] No main class found for: {}", jar.getFileName());
                 }
             });
         } catch (IOException e) {
@@ -87,7 +91,7 @@ public class LegacyModManager {
         exampleMod.onLoad();
         addMod(exampleMod);
         MinecraftForge.EVENT_BUS.register(exampleMod);
-        System.out.println("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
+        LOGGER.info("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
 
     }
 

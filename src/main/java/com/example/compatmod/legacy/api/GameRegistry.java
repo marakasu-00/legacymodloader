@@ -10,15 +10,19 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 public class GameRegistry {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static void registerItem(Supplier<Item> itemSupplier, String name) {
-        System.out.println("[CompatAPI] GameRegistry.registerItem() called for: " + name);
+        LOGGER.info("[CompatAPI] GameRegistry.registerItem() called for: {}", name);
         LegacyGameRegistry.registerItem(name, itemSupplier);
     }
     public static void registerBlock(Supplier<Block> blockSupplier, String name) {
-        System.out.println("[CompatAPI] GameRegistry.registerBlock() called for: " + name);
+        LOGGER.info("[CompatAPI] GameRegistry.registerBlock() called for: {}", name);
         LegacyGameRegistry.registerBlock(name, blockSupplier);
     }
     public static <T extends BlockEntity> void registerTileEntity(

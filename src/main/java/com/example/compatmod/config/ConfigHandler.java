@@ -6,6 +6,8 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ConfigHandler {
@@ -16,6 +18,7 @@ public class ConfigHandler {
     public static final ForgeConfigSpec.ConfigValue<String> SAVED_TEXT;
 
     private static ModConfig currentConfig;
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @SubscribeEvent
     public static void onConfigLoad(ModConfigEvent.Loading event) {
@@ -27,9 +30,9 @@ public class ConfigHandler {
     public static void saveConfigSafe() {
         if (currentConfig != null) {
             currentConfig.save();
-            System.out.println("[ConfigHandler] Config saved via ModConfig.");
+            LOGGER.info("[ConfigHandler] Config saved via ModConfig.");
         } else {
-            System.err.println("[ConfigHandler] ModConfig not bound!");
+            LOGGER.error("[ConfigHandler] ModConfig not bound!");
         }
     }
 

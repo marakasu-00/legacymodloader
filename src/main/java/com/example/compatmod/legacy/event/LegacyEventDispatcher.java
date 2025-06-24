@@ -5,6 +5,8 @@ import com.example.compatmod.legacy.loader.LegacyModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,6 +22,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class LegacyEventDispatcher {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @SubscribeEvent
     public static void onRenderOverlayPre(RenderGuiOverlayEvent.Pre event) {
@@ -47,12 +51,12 @@ public class LegacyEventDispatcher {
         BlockPos pos = event.getPos();
         BlockState state = event.getLevel().getBlockState(pos); // getWorld() → getLevel()
         if (state.getBlock() == Blocks.CHEST) {
-            System.out.println("[LegacyEventHooks] Player interacted with a chest!");
+            LOGGER.info("[LegacyEventHooks] Player interacted with a chest!");
         }
     }
     @SubscribeEvent
     public static void onRightClickEmpty(PlayerInteractEvent.RightClickEmpty event) {
-        System.out.println("[LegacyEventHooks] Player right-clicked in the air!");
+        LOGGER.info("[LegacyEventHooks] Player right-clicked in the air!");
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onPlayerInteract();
         }
@@ -65,7 +69,7 @@ public class LegacyEventDispatcher {
     }
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        System.out.println("[LegacyEventHooks] Player left-click block event fired at " + event.getPos());
+        LOGGER.info("[LegacyEventHooks] Player left-click block event fired at {}", event.getPos());
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onPlayerInteract();  // ここは場合によって別メソッドに分けてもOK
@@ -75,13 +79,13 @@ public class LegacyEventDispatcher {
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() == Items.DIAMOND) {
-            System.out.println("[LegacyEventHooks] Player used a diamond!");
+            LOGGER.info("[LegacyEventHooks] Player used a diamond!");
             // カスタム動作をここに追加
         }
     }
     @SubscribeEvent
     public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-        System.out.println("[LegacyEventHooks] Player left-clicked in the air!");
+        LOGGER.info("[LegacyEventHooks] Player left-clicked in the air!");
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
             mod.onPlayerInteract();
         }
