@@ -33,7 +33,7 @@ public class LegacyModAssetLoaderZipTest {
         try {
             LegacyModAssetLoader.loadLegacyAssets();
 
-            Path extracted = gamedir.resolve("resources/assets/assets/testmod/sample.txt");
+            Path extracted = gamedir.resolve("legacy_assets/assets/testmod/sample.txt");
 
             assertTrue(Files.exists(extracted), "Asset should be extracted from zip");
             assertEquals("hello", Files.readString(extracted));

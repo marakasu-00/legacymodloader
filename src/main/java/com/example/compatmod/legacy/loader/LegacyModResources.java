@@ -3,7 +3,6 @@ package com.example.compatmod.legacy.loader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -13,8 +12,17 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
-import java.io.File;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
 
@@ -43,14 +51,22 @@ public class LegacyModResources {
             if (legacyAssetsPath.toFile().exists()) {
                 LOGGER.info("[LegacyLoader] Registering legacy assets path: {}", legacyAssetsPath);
 
+                ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
+                verifyNoDuplicateResources(legacyAssetsPath, priority);
+
                 event.addRepositorySource(consumer -> {
+
+                    Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
+
                     Pack pack = Pack.readMetaAndCreate(
                             "legacy_assets",
-                            Component.literal("Legacy Assets"), // ここ重要！
+                            Component.literal("Legacy Assets"),
                             true,
                             (factory) -> new PathPackResources("legacy_assets", legacyAssetsPath, true),
                             PackType.CLIENT_RESOURCES,
-                            Pack.Position.TOP,
+
+                            position,
+
                             PackSource.BUILT_IN
                     );
 

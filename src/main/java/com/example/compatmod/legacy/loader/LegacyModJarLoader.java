@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class LegacyModJarLoader {
 
@@ -89,7 +91,19 @@ public class LegacyModJarLoader {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("assets/") && !entry.isDirectory()) { // ←ここ追加
                     String relativePath = entry.getName().substring("assets/".length());
-                    File outFile = new File(outputDir, relativePath);
+                    Path relative = Paths.get(relativePath).normalize();
+                    if (relative.isAbsolute() || relative.startsWith("..")) {
+                        System.err.println("[LegacyLoader] Skipping suspicious asset path: " + relativePath);
+                        continue;
+                    }
+
+                    Path outPath = outputDir.toPath().resolve(relative).normalize();
+                    if (!outPath.startsWith(outputDir.toPath().normalize())) {
+                        System.err.println("[LegacyLoader] Skipping asset escaping output directory: " + relativePath);
+                        continue;
+                    }
+
+                    File outFile = outPath.toFile();
 
                     File parent = outFile.getParentFile();
                     if (parent != null && !parent.exists()) {

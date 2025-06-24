@@ -16,6 +16,12 @@ public class ConfigHandler {
     public static final ForgeConfigSpec.DoubleValue SLIDER_VALUE;
     public static final ForgeConfigSpec.BooleanValue CHECKBOX_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> SAVED_TEXT;
+    public static final ForgeConfigSpec.EnumValue<Priority> LEGACY_ASSET_PRIORITY;
+
+    public enum Priority {
+        HIGH,
+        LOW
+    }
 
     private static ModConfig currentConfig;
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -61,6 +67,9 @@ public class ConfigHandler {
         SAVED_TEXT = builder.comment("Saved text")
                 .define("savedText", "");
 
+        LEGACY_ASSET_PRIORITY = builder.comment("Priority for legacy assets pack")
+                .defineEnum("legacyAssetPriority", Priority.LOW);
+
         COMMON_CONFIG = builder.build();
     }
 
@@ -91,6 +100,14 @@ public class ConfigHandler {
             return SAVED_TEXT.get();
         } catch (IllegalStateException e) {
             return "";
+        }
+    }
+
+    public static Priority getLegacyAssetPrioritySafe() {
+        try {
+            return LEGACY_ASSET_PRIORITY.get();
+        } catch (IllegalStateException e) {
+            return Priority.LOW;
         }
     }
 }

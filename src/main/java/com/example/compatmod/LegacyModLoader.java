@@ -6,6 +6,7 @@ import com.example.compatmod.legacy.loader.LegacyModJarLoader;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.loader.LegacyModResourceHelper;
 import com.example.compatmod.legacy.loader.LegacyModAssetLoader;
+import com.example.compatmod.legacy.loader.LegacyConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,6 +27,8 @@ public class LegacyModLoader {
     private static final Logger LOGGER = LogUtils.getLogger();
     @SuppressWarnings("removal")
     public LegacyModLoader() {
+        // Load configuration values for the legacy loader
+        LegacyConfig.load();
         ConfigHandler.register();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
