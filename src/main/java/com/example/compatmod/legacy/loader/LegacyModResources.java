@@ -16,7 +16,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Files;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,7 +88,7 @@ public class LegacyModResources {
         if (!Files.exists(root)) return set;
         try (Stream<Path> stream = Files.walk(root)) {
             stream.filter(Files::isRegularFile).forEach(p -> {
-                String rel = root.relativize(p).toString().replace(File.separatorChar, '/');
+                String rel = root.relativize(p).toString().replace(java.io.File.separatorChar, '/');
                 set.add(rel);
             });
         }
