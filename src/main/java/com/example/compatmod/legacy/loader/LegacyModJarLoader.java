@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.mojang.logging.LogUtils;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
@@ -16,8 +17,11 @@ import java.util.jar.JarFile;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.slf4j.Logger;
 
 public class LegacyModJarLoader {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final File legacyModsFolder;
     private final String thisModFileName;
@@ -71,7 +75,7 @@ public class LegacyModJarLoader {
                 }
             } catch (IOException e) {
                 System.err.println("[LegacyLoader] Failed to process jar: " + jar.getName());
-                e.printStackTrace();
+                LOGGER.error("[LegacyLoader] Failed to process jar {}", jar.getName(), e);
             }
         }
 
@@ -116,7 +120,7 @@ public class LegacyModJarLoader {
             }
         } catch (IOException e) {
             System.err.println("[LegacyLoader] Failed to extract assets: " + legacyJar.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to extract assets from {}", legacyJar.getName(), e);
         }
     }
 
@@ -142,7 +146,7 @@ public class LegacyModJarLoader {
 
         } catch (Exception e) {
             System.err.println("[LegacyLoader] Failed to initialize mod class: " + clazz.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to initialize mod class {}", clazz.getName(), e);
         }
     }
 

@@ -1,10 +1,15 @@
 package com.example.compatmod.loader;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ModAnnotationParser {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static List<String> parseDependencies(Class<?> modClass) {
         List<String> dependencies = new ArrayList<>();
@@ -20,7 +25,7 @@ public class ModAnnotationParser {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("[LegacyLoader] Failed to parse mod dependencies", e);
                 }
             }
         }
