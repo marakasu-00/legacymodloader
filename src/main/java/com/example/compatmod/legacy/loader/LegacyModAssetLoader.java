@@ -91,12 +91,14 @@ public final class LegacyModAssetLoader {
                     Files.copy(target, dup, StandardCopyOption.REPLACE_EXISTING);
                 } else if (isLegacyResource(name)) {
                     foundAsset = true;
+
                     String archiveBaseName = archive.getFileName().toString();
                     int dot = archiveBaseName.lastIndexOf('.');
                     if (dot != -1) {
                         archiveBaseName = archiveBaseName.substring(0, dot);
                     }
                     Path target = miscDir.resolve(archiveBaseName).resolve(name);
+
                     Files.createDirectories(target.getParent());
                     try (InputStream in = zipFile.getInputStream(entry)) {
                         Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
