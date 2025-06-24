@@ -25,6 +25,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,8 @@ import static com.example.compatmod.config.SafeConfigManager.saveConfigSafe;
 import static com.example.compatmod.legacy.event.LegacyGuiEventHandler.clearLegacyWidgets;
 
 public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private double savedSliderValue = 0.5;
     private LegacySlider exampleSlider;
@@ -53,7 +57,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onLoad() {
-        System.out.println("[LegacyExample] onLoad called!");
+        LOGGER.info("[LegacyExample] onLoad called!");
         LegacyEntityEventDispatcher.register(this);
     }
 
@@ -73,7 +77,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onEntityHurt(LivingEntity entity, DamageSource source, float amount) {
-        System.out.println("[LegacyExample] Entity hurt: " + entity.getName().getString() + " Damage: " + amount);
+        LOGGER.info("[LegacyExample] Entity hurt: {} Damage: {}", entity.getName().getString(), amount);
     }
 
     @Override
@@ -83,7 +87,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onKeyInput(int keyCode, boolean pressed) {
-        System.out.println("[LegacyExample] Key input detected! key=" + keyCode + " pressed=" + pressed);
+        LOGGER.info("[LegacyExample] Key input detected! key={} pressed={}", keyCode, pressed);
     }
 
     @Override
@@ -93,17 +97,17 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onPlayerInteract() {
-        System.out.println("[LegacyExample] onPlayerInteract called!");
+        LOGGER.info("[LegacyExample] onPlayerInteract called!");
     }
 
     @SubscribeEvent
     public static void debugClick(PlayerInteractEvent.RightClickBlock event) {
-        System.out.println("[LegacyEventDispatcher] Right click detected on block: " + event.getPos());
+        LOGGER.info("[LegacyEventDispatcher] Right click detected on block: {}", event.getPos());
     }
 
     @Override
     public void onEntityInteract(LivingEntity target) {
-        System.out.println("[LegacyExample] Interacted with entity: " + target.getName().getString());
+        LOGGER.info("[LegacyExample] Interacted with entity: {}", target.getName().getString());
     }
 
     @Override
@@ -116,7 +120,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
     public void onScreenOpen(Screen screen) {
 
         if (screen instanceof InventoryScreen) {
-            System.out.println("インベントリ画面が開かれました！");
+            LOGGER.info("インベントリ画面が開かれました！");
         }
     }
 
@@ -134,12 +138,12 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onGuiKeyPressed(Screen screen, int keyCode, int scanCode, int modifiers) {
-        System.out.println("[LegacyExample] Key pressed: " + keyCode + ", Screen: " + screen.getClass().getSimpleName());
+        LOGGER.info("[LegacyExample] Key pressed: {} , Screen: {}", keyCode, screen.getClass().getSimpleName());
     }
 
     @Override
     public void onChatInput(String message) {
-        System.out.println("[LegacyExample] Chat input detected: " + message);
+        LOGGER.info("[LegacyExample] Chat input detected: {}", message);
     }
 
     private void rebuildGui() {
@@ -214,7 +218,7 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
         editBox.setMaxLength(50);
         editBox.setValue(SafeConfigManager.getText());
         editBox.setResponder(text -> {
-            System.out.println("[EditBox] 入力内容変更: " + text);
+            LOGGER.info("[EditBox] 入力内容変更: {}", text);
             SafeConfigManager.setText("[SafeConfigManager] setText called: "  + text);
             SafeConfigManager.saveConfigSafe();
         });
@@ -259,16 +263,16 @@ public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener 
 
     @Override
     public void onGuiMouseClicked (Screen screen,double mouseX, double mouseY, int button){
-        System.out.println("[LegacyExample] Mouse clicked: " + button + " at (" + mouseX + ", " + mouseY + ")");
+        LOGGER.info("[LegacyExample] Mouse clicked: {} at ({}, {})", button, mouseX, mouseY);
     }
     public static void setText(String text) {
         if (text == null) text = "";
         try {
-            System.out.println("[SafeConfigManager] Saving text: " + text);
+            LOGGER.info("[SafeConfigManager] Saving text: {}", text);
             ConfigHandler.SAVED_TEXT.set(text);
             saveConfigSafe();
         } catch (Exception e) {
-            System.err.println("[SafeConfigManager] Failed to save text: " + e.getMessage());
+            LOGGER.error("[SafeConfigManager] Failed to save text: {}", e.getMessage());
         }
     }
 

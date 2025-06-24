@@ -7,10 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.Component;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
 public class LegacyCheckbox extends Checkbox {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final String label;
     private BooleanConsumer responder;
@@ -27,7 +31,7 @@ public class LegacyCheckbox extends Checkbox {
     @Override
     public void onPress() {
         super.onPress();
-        System.out.println("Checkbox toggled: " + selected());
+        LOGGER.info("Checkbox toggled: {}", selected());
         if (responder != null) {
             responder.accept(this.selected());
         }

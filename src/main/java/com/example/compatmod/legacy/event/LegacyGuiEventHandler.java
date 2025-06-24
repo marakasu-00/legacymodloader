@@ -5,6 +5,8 @@ import com.example.compatmod.legacy.api.ILegacyMod;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,6 +35,7 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiEventHandler {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<LegacyWidgetWrapper> legacyWidgets = new ArrayList<>();
     private static int lastMouseButton = -1;
 
@@ -225,7 +228,7 @@ public class LegacyGuiEventHandler {
     }
     @SubscribeEvent
     public static void onScreenClose(ScreenEvent.Closing event) {
-        System.out.println("[LegacyEvent] Screen closing - saving config");
+        LOGGER.info("[LegacyEvent] Screen closing - saving config");
         SafeConfigManager.saveConfigSafe();
     }
     @SubscribeEvent

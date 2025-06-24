@@ -2,6 +2,8 @@ package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
 import net.minecraftforge.fml.loading.FMLPaths;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH;
 
@@ -18,6 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LegacyModJarLoader {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final File legacyModsFolder;
     private final String thisModFileName;
@@ -42,7 +46,7 @@ public class LegacyModJarLoader {
             try {
                 // 自分自身のJARファイルはスキップ
                 if (thisModFileName.contains(jar.getName())) {
-                    System.out.println("[LegacyModJarLoader] Skipped own mod jar: " + jar.getName());
+                    LOGGER.info("[LegacyModJarLoader] Skipped own mod jar: {}", jar.getName());
                     continue;
                 }
 
@@ -60,7 +64,7 @@ public class LegacyModJarLoader {
                             try {
                                 Class<?> clazz = classLoader.loadClass(className);
                                 if (!Modifier.isAbstract(clazz.getModifiers()) && isLegacyModClass(clazz)) {
-                                    System.out.println("[LegacyLoader] Loaded legacy mod class: " + className);
+                                    LOGGER.info("[LegacyLoader] Loaded legacy mod class: {}", className);
                                     initializeModClass(clazz);
                                     loadedClasses.add(clazz);
                                 }
@@ -70,8 +74,7 @@ public class LegacyModJarLoader {
                     }
                 }
             } catch (IOException e) {
-                System.err.println("[LegacyLoader] Failed to process jar: " + jar.getName());
-                e.printStackTrace();
+                LOGGER.error("[LegacyLoader] Failed to process jar: {}", jar.getName(), e);
             }
         }
 
@@ -110,13 +113,12 @@ public class LegacyModJarLoader {
                     try (InputStream in = jar.getInputStream(entry);
                          OutputStream out = new FileOutputStream(outFile)) {
                         in.transferTo(out);
-                        System.out.println("[LegacyLoader] Extracted asset: " + relativePath);
+                        LOGGER.info("[LegacyLoader] Extracted asset: {}", relativePath);
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("[LegacyLoader] Failed to extract assets: " + legacyJar.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to extract assets: {}", legacyJar.getName(), e);
         }
     }
 
@@ -128,12 +130,12 @@ public class LegacyModJarLoader {
     private void initializeModClass(Class<?> clazz) {
         try {
             Object instance = clazz.getDeclaredConstructor().newInstance();
-            System.out.println("[LegacyLoader] Instantiated mod class: " + clazz.getName());
+            LOGGER.info("[LegacyLoader] Instantiated mod class: {}", clazz.getName());
 
             // --- レガシーMODインターフェースを実装していたら登録 ---
             if (instance instanceof ILegacyMod legacyMod) {
                 LegacyModManager.addMod(legacyMod);
-                System.out.println("[LegacyLoader] Registered legacy mod: " + clazz.getName());
+                LOGGER.info("[LegacyLoader] Registered legacy mod: {}", clazz.getName());
             }
 
             tryCallMethod(instance, "load");
@@ -141,8 +143,7 @@ public class LegacyModJarLoader {
             tryCallMethod(instance, "onEnable");
 
         } catch (Exception e) {
-            System.err.println("[LegacyLoader] Failed to initialize mod class: " + clazz.getName());
-            e.printStackTrace();
+            LOGGER.error("[LegacyLoader] Failed to initialize mod class: {}", clazz.getName(), e);
         }
     }
 
@@ -153,11 +154,11 @@ public class LegacyModJarLoader {
             var method = instance.getClass().getMethod(methodName);
             method.setAccessible(true);
             method.invoke(instance);
-            System.out.println("[LegacyLoader] Called method: " + methodName);
+            LOGGER.info("[LegacyLoader] Called method: {}", methodName);
         } catch (NoSuchMethodException e) {
             // メソッドが存在しない場合は無視
         } catch (Exception e) {
-            System.err.println("[LegacyLoader] Error calling " + methodName + ": " + e.getMessage());
+            LOGGER.error("[LegacyLoader] Error calling {}: {}", methodName, e.getMessage());
         }
     }
 }
