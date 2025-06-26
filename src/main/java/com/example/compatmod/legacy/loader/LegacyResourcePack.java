@@ -25,6 +25,10 @@ public class LegacyResourcePack extends PathPackResources {
             "legacy_misc/"
     );
 
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
+            ".png", ".json", ".lang", ".ogg", ".mcmeta", ".mqo", ".mqoz", ".obj", ".js"
+    );
+
     private final Path root;
 
     public LegacyResourcePack(String name, Path root, boolean builtin) {
@@ -48,7 +52,17 @@ public class LegacyResourcePack extends PathPackResources {
             return false;
         }
         Path rel = root.relativize(normalized);
-        return isAllowed(rel.toString().replace('\\', '/'));
+        String pathStr = rel.toString().replace('\\', '/');
+        if (!isAllowed(pathStr)) {
+            return false;
+        }
+        String lower = pathStr.toLowerCase();
+        for (String ext : ALLOWED_EXTENSIONS) {
+            if (lower.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -34,7 +34,8 @@ public class LegacyModJarLoader {
 
     public List<Class<?>> loadAllLegacyMods() {
         List<Class<?>> loadedClasses = new ArrayList<>();
-        File[] jars = legacyModsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+        File[] jars = legacyModsFolder.listFiles((dir, name) ->
+                name.endsWith(".jar") || name.endsWith(".zip"));
         if (jars == null) return loadedClasses;
 
         File assetsDir = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH).toFile();

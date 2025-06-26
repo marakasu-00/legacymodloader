@@ -13,12 +13,12 @@ public class LegacyResourcePackTest {
     @Test
     public void testAllowedResourceAccessible() throws Exception {
         Path root = Files.createTempDirectory("pack");
-        Path file = root.resolve("assets/testmod/textures/ok.txt");
+        Path file = root.resolve("assets/testmod/textures/ok.json");
         Files.createDirectories(file.getParent());
         Files.writeString(file, "hello");
 
         LegacyResourcePack pack = new LegacyResourcePack("test", root, true);
-        ResourceLocation rl = new ResourceLocation("testmod", "textures/ok.txt");
+        ResourceLocation rl = new ResourceLocation("testmod", "textures/ok.json");
         assertNotNull(pack.getResource(PackType.CLIENT_RESOURCES, rl), "Allowed resource should be served");
     }
 
@@ -32,5 +32,17 @@ public class LegacyResourcePackTest {
         LegacyResourcePack pack = new LegacyResourcePack("test", root, true);
         ResourceLocation rl = new ResourceLocation("testmod", "../secret.txt");
         assertNull(pack.getResource(PackType.CLIENT_RESOURCES, rl), "Traversal outside pack should be denied");
+    }
+
+    @Test
+    public void testDisallowedExtensionDenied() throws Exception {
+        Path root = Files.createTempDirectory("pack");
+        Path file = root.resolve("assets/testmod/textures/bad.txt");
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, "bad");
+
+        LegacyResourcePack pack = new LegacyResourcePack("test", root, true);
+        ResourceLocation rl = new ResourceLocation("testmod", "textures/bad.txt");
+        assertNull(pack.getResource(PackType.CLIENT_RESOURCES, rl), "Disallowed extension should be denied");
     }
 }
