@@ -1,16 +1,12 @@
 package com.example.compatmod.legacy.loader;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
-import com.example.compatmod.legacy.loader.LegacyResourcePack;
-import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
 import com.example.compatmod.config.ConfigHandler;
+import com.example.compatmod.legacy.loader.LegacyResourcePackProvider;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -119,26 +115,7 @@ public class LegacyModResources {
                 ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
 
-                event.addRepositorySource(consumer -> {
-
-                    Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
-
-                    Pack pack = Pack.readMetaAndCreate(
-                            "legacy_assets",
-                            Component.literal("Legacy Assets"),
-                            true,
-                            (factory) -> new LegacyResourcePack("legacy_assets", legacyAssetsPath, true),
-                            PackType.CLIENT_RESOURCES,
-
-                            position,
-
-                            PackSource.BUILT_IN
-                    );
-
-                    if (pack != null) {
-                        consumer.accept(pack);
-                    }
-                });
+                event.addRepositorySource(new LegacyResourcePackProvider(legacyAssetsPath, priority));
             } else {
                 System.out.println("[LegacyLoader] No legacy assets found to register at: " + legacyAssetsPath);
             }
