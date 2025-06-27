@@ -86,13 +86,6 @@ public class LegacyModManager {
         } catch (IOException e) {
             LOGGER.error("[LegacyLoader] Error scanning legacy mods directory", e);
         }
-        // --- 仮で ExampleLegacyMod を手動登録 ---
-        com.example.compatmod.legacy.ExampleLegacyMod exampleMod = new com.example.compatmod.legacy.ExampleLegacyMod();
-        exampleMod.onLoad();
-        addMod(exampleMod);
-        MinecraftForge.EVENT_BUS.register(exampleMod);
-        System.out.println("[LegacyModLoader] ExampleLegacyMod loaded manually for testing.");
-
     }
 
     private static Optional<String> findModAnnotatedClass(Path jarPath) {
