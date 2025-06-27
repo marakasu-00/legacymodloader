@@ -1,4 +1,4 @@
-import com.example.compatmod.config.ConfigHandler;
+import com.example.compatmod.legacy.loader.LegacyConfig;
 import com.example.compatmod.legacy.loader.LegacyModResources;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +26,7 @@ public class LegacyModResourcesDuplicateTest {
             Files.writeString(existing.resolve("dup.txt"), "b", StandardOpenOption.CREATE);
 
             Assertions.assertThrows(IllegalStateException.class,
-                    () -> LegacyModResources.verifyNoDuplicateResources(gamedir.resolve("legacy_assets"), ConfigHandler.Priority.HIGH));
+                    () -> LegacyModResources.verifyNoDuplicateResources(gamedir.resolve("legacy_assets"), LegacyConfig.PackPriority.HIGH));
         } finally {
             System.setProperty("user.dir", originalDir);
         }
@@ -49,7 +49,7 @@ public class LegacyModResourcesDuplicateTest {
             Files.writeString(existing.resolve("dup.txt"), "b", StandardOpenOption.CREATE);
 
             // Should not throw
-            LegacyModResources.verifyNoDuplicateResources(gamedir.resolve("legacy_assets"), ConfigHandler.Priority.LOW);
+            LegacyModResources.verifyNoDuplicateResources(gamedir.resolve("legacy_assets"), LegacyConfig.PackPriority.LOW);
         } finally {
             System.setProperty("user.dir", originalDir);
         }
