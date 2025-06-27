@@ -10,7 +10,7 @@ import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
-import com.example.compatmod.config.ConfigHandler;
+import com.example.compatmod.legacy.loader.LegacyConfig;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -31,7 +31,7 @@ public class LegacyModResources {
      * Verify that resources under the given legacy assets path do not clash with
      * already present resources.
      */
-    public static void verifyNoDuplicateResources(Path legacyAssetsPath, ConfigHandler.Priority priority) {
+    public static void verifyNoDuplicateResources(Path legacyAssetsPath, LegacyConfig.PackPriority priority) {
         try {
             Set<String> legacy = collectResources(legacyAssetsPath.resolve("assets"));
             Set<String> existing = collectExistingResources();
@@ -39,7 +39,7 @@ public class LegacyModResources {
 
             if (!dup.isEmpty()) {
                 String msg = "[LegacyLoader] Duplicate legacy assets detected: " + dup;
-                if (priority == ConfigHandler.Priority.HIGH) {
+                if (priority == LegacyConfig.PackPriority.HIGH) {
                     System.err.println(msg);
                     throw new IllegalStateException("Legacy assets conflict with existing resources");
                 } else {
@@ -116,12 +116,12 @@ public class LegacyModResources {
             if (legacyAssetsPath.toFile().exists()) {
                 System.out.println("[LegacyLoader] Registering legacy assets path: " + legacyAssetsPath);
 
-                ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
+                LegacyConfig.PackPriority priority = LegacyConfig.packPriority;
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
 
                 event.addRepositorySource(consumer -> {
 
-                    Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
+                    Pack.Position position = priority == LegacyConfig.PackPriority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
 
                     Pack pack = Pack.readMetaAndCreate(
                             "legacy_assets",
