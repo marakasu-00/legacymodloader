@@ -19,7 +19,7 @@ public class LegacyModResourceHelper {
         Path targetDir = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
         if (!Files.exists(sourceDir)) {
-            System.out.println("[LegacyLoader] No legacy assets found at: " + sourceDir);
+            LOGGER.info("[LegacyLoader] No legacy assets found at: {}", sourceDir);
             return;
         }
 
@@ -33,14 +33,13 @@ public class LegacyModResourceHelper {
                         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
                     }
                 } catch (IOException e) {
-                    System.err.println("[LegacyLoader] Failed to copy: " + source);
+                    LOGGER.error("[LegacyLoader] Failed to copy: {}", source);
                 }
             });
 
-            System.out.println("[LegacyLoader] Legacy assets copied to: " + targetDir);
+            LOGGER.info("[LegacyLoader] Legacy assets copied to: {}", targetDir);
 
         } catch (IOException e) {
-            System.err.println("[LegacyLoader] Error during asset copying.");
             LOGGER.error("[LegacyLoader] Error during asset copying", e);
         }
     }

@@ -17,11 +17,15 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.mtr.legacymodloader.Config;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.io.File;
 
 @Mod("legacymodloader")
 public class LegacyModLoader {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
     @SuppressWarnings("removal")
     public LegacyModLoader() {
         // Load configuration values for the legacy loader
@@ -60,7 +64,7 @@ public class LegacyModLoader {
             boolean enabled = ConfigHandler.getCheckboxSafe();
             String text = ConfigHandler.getSavedTextSafe();
 
-            System.out.println("Loaded slider=" + slider + " enabled=" + enabled + " text=" + text);
+            LOGGER.info("Loaded slider={} enabled={} text={}", slider, enabled, text);
         });
     }
 

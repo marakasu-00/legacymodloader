@@ -1,6 +1,8 @@
 package com.example.compatmod.legacy.loader;
 
 import net.minecraftforge.fml.loading.FMLPaths;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +13,8 @@ import java.util.List;
  * Simple loader for legacy_loader.toml configuration.
  */
 public final class LegacyConfig {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum PackPriority { HIGH, LOW }
 
@@ -26,7 +30,7 @@ public final class LegacyConfig {
     public static void load() {
         Path file = FMLPaths.CONFIGDIR.get().resolve(CONFIG_FILE);
         if (!Files.exists(file)) {
-            System.out.println("[LegacyLoader] No config found, using defaults");
+            LOGGER.info("[LegacyLoader] No config found, using defaults");
             return;
         }
 
@@ -54,9 +58,9 @@ public final class LegacyConfig {
                     }
                 }
             }
-            System.out.println("[LegacyLoader] Loaded resource pack priority: " + packPriority);
+            LOGGER.info("[LegacyLoader] Loaded resource pack priority: {}", packPriority);
         } catch (IOException e) {
-            System.err.println("[LegacyLoader] Failed to load config: " + e.getMessage());
+            LOGGER.error("[LegacyLoader] Failed to load config: {}", e.getMessage());
         }
     }
 }
