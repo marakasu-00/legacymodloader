@@ -11,6 +11,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
 import com.example.compatmod.config.ConfigHandler;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -27,6 +29,8 @@ import static com.example.compatmod.legacy.loader.LegacyPaths.LEGACY_ASSETS_PATH
 @Mod.EventBusSubscriber(modid = "legacymodloader", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class LegacyModResources {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     /**
      * Verify that resources under the given legacy assets path do not clash with
      * already present resources.
@@ -40,14 +44,14 @@ public class LegacyModResources {
             if (!dup.isEmpty()) {
                 String msg = "[LegacyLoader] Duplicate legacy assets detected: " + dup;
                 if (priority == ConfigHandler.Priority.HIGH) {
-                    System.err.println(msg);
+                    LOGGER.error(msg);
                     throw new IllegalStateException("Legacy assets conflict with existing resources");
                 } else {
-                    System.out.println("[LegacyLoader] Warning: " + msg);
+                    LOGGER.warn("[LegacyLoader] Warning: {}", msg);
                 }
             }
         } catch (IOException e) {
-            System.err.println("[LegacyLoader] Failed scanning legacy assets");
+            LOGGER.error("[LegacyLoader] Failed scanning legacy assets", e);
         }
     }
 
@@ -100,11 +104,11 @@ public class LegacyModResources {
         Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
         if (!legacyAssetsPath.toFile().exists()) {
-            System.out.println("[LegacyLoader] No legacy assets found at: " + legacyAssetsPath);
+            LOGGER.info("[LegacyLoader] No legacy assets found at: {}", legacyAssetsPath);
             return false;
         }
 
-        System.out.println("[LegacyLoader] Legacy assets detected at: " + legacyAssetsPath);
+        LOGGER.info("[LegacyLoader] Legacy assets detected at: {}", legacyAssetsPath);
         return true;
     }
 
@@ -114,7 +118,7 @@ public class LegacyModResources {
             Path legacyAssetsPath = FMLPaths.GAMEDIR.get().resolve(LEGACY_ASSETS_PATH);
 
             if (legacyAssetsPath.toFile().exists()) {
-                System.out.println("[LegacyLoader] Registering legacy assets path: " + legacyAssetsPath);
+                LOGGER.info("[LegacyLoader] Registering legacy assets path: {}", legacyAssetsPath);
 
                 ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
@@ -140,7 +144,7 @@ public class LegacyModResources {
                     }
                 });
             } else {
-                System.out.println("[LegacyLoader] No legacy assets found to register at: " + legacyAssetsPath);
+                LOGGER.info("[LegacyLoader] No legacy assets found to register at: {}", legacyAssetsPath);
             }
         }
     }

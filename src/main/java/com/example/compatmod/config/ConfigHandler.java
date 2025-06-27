@@ -6,9 +6,13 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ConfigHandler {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ForgeConfigSpec COMMON_CONFIG;
     public static final ForgeConfigSpec.DoubleValue SLIDER_VALUE;
@@ -33,9 +37,9 @@ public class ConfigHandler {
     public static void saveConfigSafe() {
         if (currentConfig != null) {
             currentConfig.save();
-            System.out.println("[ConfigHandler] Config saved via ModConfig.");
+            LOGGER.info("[ConfigHandler] Config saved via ModConfig.");
         } else {
-            System.err.println("[ConfigHandler] ModConfig not bound!");
+            LOGGER.warn("[ConfigHandler] ModConfig not bound!");
         }
     }
 

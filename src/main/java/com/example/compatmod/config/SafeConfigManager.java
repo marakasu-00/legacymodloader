@@ -1,8 +1,12 @@
 package com.example.compatmod.config;
 
+import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.slf4j.Logger;
 
 public class SafeConfigManager {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void setSlider(double value) {
         if (value >= 0.0 && value <= 1.0) {
@@ -10,10 +14,10 @@ public class SafeConfigManager {
                 ConfigHandler.SLIDER_VALUE.set(value);
                 saveConfigSafe();
             } catch (Exception e) {
-                System.err.println("[SafeConfigManager] Failed to save slider value: " + e.getMessage());
+                LOGGER.error("[SafeConfigManager] Failed to save slider value: {}", e.getMessage());
             }
         } else {
-            System.out.println("[SafeConfigManager] Invalid slider value: " + value);
+            LOGGER.warn("[SafeConfigManager] Invalid slider value: {}", value);
         }
     }
 
@@ -22,7 +26,7 @@ public class SafeConfigManager {
             ConfigHandler.CHECKBOX_ENABLED.set(enabled);
             saveConfigSafe();
         } catch (Exception e) {
-            System.err.println("[SafeConfigManager] Failed to save checkbox: " + e.getMessage());
+            LOGGER.error("[SafeConfigManager] Failed to save checkbox: {}", e.getMessage());
         }
     }
 
@@ -33,11 +37,11 @@ public class SafeConfigManager {
     public static void setText(String text) {
         if (text == null) text = "";
         try {
-            System.out.println("[SafeConfigManager] setText called: " + text);
+            LOGGER.info("[SafeConfigManager] setText called: {}", text);
             ConfigHandler.SAVED_TEXT.set(text); // ✅ textそのものを保存しているか確認
             saveConfigSafe();
         } catch (Exception e) {
-            System.err.println("[SafeConfigManager] Failed to save text: " + e.getMessage());
+            LOGGER.error("[SafeConfigManager] Failed to save text: {}", e.getMessage());
         }
     }
 
@@ -45,7 +49,7 @@ public class SafeConfigManager {
         try {
             ConfigHandler.COMMON_CONFIG.save();
         } catch (Exception e) {
-            System.err.println("[SafeConfigManager] Failed to save config: " + e.getMessage());
+            LOGGER.error("[SafeConfigManager] Failed to save config: {}", e.getMessage());
         }
     }
 
