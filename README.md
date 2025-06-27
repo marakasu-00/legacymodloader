@@ -3,8 +3,10 @@ A mod to load and provide compatibility for 1.12.2 mods in 1.20.1.
 in the making
 現在制作中
 
-Legacy mods are loaded from `run/mods/legacy` by default. Files placed here may
-be either `.jar` or `.zip` archives. The location can be changed by modifying
+Legacy mods are loaded from `run/mods/legacy` by default. Place any 1.12.2 mods
+or other legacy mods inside the `mods/legacy/` folder and they will be detected
+automatically when the game starts. Files placed here may be either `.jar` or
+`.zip` archives. The location can be changed by modifying
 `LegacyModManager.legacyModsDir` before initialisation.
 
 When a legacy mod is processed, any resources under its `assets/` directory are
