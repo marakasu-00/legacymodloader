@@ -1,9 +1,13 @@
-package com.example.compatmod.legacy.api;
+package com.example.compatmod.legacy.client;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
+@OnlyIn(Dist.CLIENT)
 public class LegacyGuiFactory {
 
     public static Button createButton(int x, int y, int width, int height, String label, Button.OnPress action) {

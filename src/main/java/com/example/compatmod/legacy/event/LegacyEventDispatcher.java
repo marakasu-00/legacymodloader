@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.event;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -26,7 +27,9 @@ public class LegacyEventDispatcher {
         if (event.getOverlay().id().toString().equals("minecraft:hotbar")) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
             for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-                mod.onPreRenderOverlay(guiGraphics); // 前描画用メソッド
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onPreRenderOverlay(guiGraphics); // 前描画用メソッド
+                }
             }
         }
     }
@@ -36,7 +39,9 @@ public class LegacyEventDispatcher {
         if (event.getOverlay().id().toString().equals("minecraft:hotbar")) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
             for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-                mod.onRenderOverlay(guiGraphics); // 後描画用メソッド
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onRenderOverlay(guiGraphics); // 後描画用メソッド
+                }
             }
         }
     }

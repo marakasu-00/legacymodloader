@@ -1,10 +1,14 @@
-package com.example.compatmod.legacy.widget;
+package com.example.compatmod.legacy.client.widget;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
+@OnlyIn(Dist.CLIENT)
 public class LegacyEditBox extends EditBox {
 
     private String savedText = "";

@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.event;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -23,7 +24,9 @@ public class LegacyChatEventHandler {
         int modifiers = event.getModifiers();
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiKeyPressed(screen, keyCode, scanCode, modifiers);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onGuiKeyPressed(screen, keyCode, scanCode, modifiers);
+            }
         }
     }
     @SubscribeEvent
@@ -35,7 +38,9 @@ public class LegacyChatEventHandler {
             int modifiers = event.getModifiers();
 
             for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-                mod.onGuiKeyPressed(mc.screen, keyCode, scanCode, modifiers);
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onGuiKeyPressed(mc.screen, keyCode, scanCode, modifiers);
+                }
             }
         }
     }

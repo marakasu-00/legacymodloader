@@ -1,15 +1,16 @@
-package com.example.compatmod.legacy;
+package com.example.compatmod.legacy.client;
 
 import com.example.compatmod.config.ConfigHandler;
 import com.example.compatmod.config.SafeConfigManager;
 import com.example.compatmod.legacy.api.event.ILegacyEntityEventListener;
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.example.compatmod.legacy.event.LegacyEntityEventDispatcher;
 import com.example.compatmod.legacy.event.LegacyGuiEventHandler;
-import com.example.compatmod.legacy.screen.LegacyConfigScreen;
-import com.example.compatmod.legacy.widget.LegacyCheckbox;
-import com.example.compatmod.legacy.widget.LegacyEditBox;
-import com.example.compatmod.legacy.widget.LegacySlider;
+import com.example.compatmod.legacy.client.screen.LegacyConfigScreen;
+import com.example.compatmod.legacy.client.widget.LegacyCheckbox;
+import com.example.compatmod.legacy.client.widget.LegacyEditBox;
+import com.example.compatmod.legacy.client.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,7 +33,11 @@ import java.util.List;
 import static com.example.compatmod.config.SafeConfigManager.saveConfigSafe;
 import static com.example.compatmod.legacy.event.LegacyGuiEventHandler.clearLegacyWidgets;
 
-public class ExampleLegacyMod implements ILegacyMod, ILegacyEntityEventListener {
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
+public class ExampleLegacyMod implements ILegacyMod, ILegacyModClient, ILegacyEntityEventListener {
 
     private double savedSliderValue = 0.5;
     private LegacySlider exampleSlider;

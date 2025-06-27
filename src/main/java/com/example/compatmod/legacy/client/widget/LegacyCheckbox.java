@@ -1,4 +1,7 @@
-package com.example.compatmod.legacy.widget;
+package com.example.compatmod.legacy.client.widget;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.example.compatmod.config.ConfigHandler;
 import com.example.compatmod.config.SafeConfigManager;
@@ -10,6 +13,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 public class LegacyCheckbox extends Checkbox {
 
     private final String label;

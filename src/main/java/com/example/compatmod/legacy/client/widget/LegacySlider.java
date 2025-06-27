@@ -1,4 +1,7 @@
-package com.example.compatmod.legacy.widget;
+package com.example.compatmod.legacy.client.widget;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.example.compatmod.config.SafeConfigManager;
 import net.minecraft.client.Minecraft;
@@ -8,6 +11,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.DoubleConsumer;
 
+@OnlyIn(Dist.CLIENT)
 public class LegacySlider extends AbstractSliderButton {
     private final Component labelPrefix;
     private final double min;

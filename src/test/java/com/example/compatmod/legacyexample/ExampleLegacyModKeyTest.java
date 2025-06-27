@@ -1,8 +1,9 @@
 package com.example.compatmod.legacyexample;
 
 import com.example.compatmod.legacy.api.BaseMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 
-public class ExampleLegacyModKeyTest extends BaseMod {
+public class ExampleLegacyModKeyTest extends BaseMod implements ILegacyModClient {
 
     @Override
     public void onLoad() {

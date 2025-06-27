@@ -2,6 +2,7 @@ package com.example.compatmod.legacy.event;
 
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
@@ -15,7 +16,9 @@ public class LegacyEventHandler {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-                mod.onClientTick();
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onClientTick();
+                }
             }
         }
     }
@@ -23,7 +26,9 @@ public class LegacyEventHandler {
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onRenderOverlay();
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onRenderOverlay();
+            }
         }
     }
 }
