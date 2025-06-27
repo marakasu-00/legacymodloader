@@ -1,10 +1,12 @@
 package com.example.compatmod.legacy.loader;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.api.distmarker.Dist;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -184,7 +186,9 @@ public class LegacyModManager {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             for (ILegacyMod mod : legacyMods) {
-                mod.onClientTick();
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onClientTick();
+                }
             }
         }
     }
@@ -204,7 +208,9 @@ public class LegacyModManager {
             int keyCode = event.getKey();
 
             for (ILegacyMod mod : legacyMods) {
-                mod.onKeyInput(keyCode, pressed);
+                if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                    clientMod.onKeyInput(keyCode, pressed);
+                }
             }
         }
     }

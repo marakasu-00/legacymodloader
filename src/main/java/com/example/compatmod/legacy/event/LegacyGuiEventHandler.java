@@ -2,8 +2,9 @@ package com.example.compatmod.legacy.event;
 
 import com.example.compatmod.config.SafeConfigManager;
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.example.compatmod.legacy.loader.LegacyModManager;
-import com.example.compatmod.legacy.widget.LegacySlider;
+import com.example.compatmod.legacy.client.widget.LegacySlider;
 import com.example.compatmod.legacy.widget.LegacyWidgetWrapper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -52,14 +53,18 @@ public class LegacyGuiEventHandler {
     public static void onScreenOpen(ScreenEvent.Opening event) {
         Screen newScreen = event.getNewScreen();
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onScreenOpen(newScreen);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onScreenOpen(newScreen);
+            }
         }
     }
 
     @SubscribeEvent
     public static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiKeyPressed(event.getScreen(), event.getKeyCode(), event.getScanCode(), event.getModifiers());
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onGuiKeyPressed(event.getScreen(), event.getKeyCode(), event.getScanCode(), event.getModifiers());
+            }
         }
     }
 
@@ -89,7 +94,9 @@ public class LegacyGuiEventHandler {
         float partialTicks = event.getPartialTick();
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiRenderPost(screen, guiGraphics, mouseX, mouseY, partialTicks);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onGuiRenderPost(screen, guiGraphics, mouseX, mouseY, partialTicks);
+            }
         }
 
     }
@@ -99,7 +106,9 @@ public class LegacyGuiEventHandler {
 
         List<LegacyWidgetWrapper> widgets = new ArrayList<>();
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiInit(event.getScreen(), widgets);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onGuiInit(event.getScreen(), widgets);
+            }
         }
 
         // 前のウィジェット登録で画面に残っている描画用部品は Forge 側で自動的に置き換えられる
@@ -242,7 +251,9 @@ public class LegacyGuiEventHandler {
         }
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onGuiRenderPost(event.getScreen(), graphics, mouseX, mouseY, partialTicks);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onGuiRenderPost(event.getScreen(), graphics, mouseX, mouseY, partialTicks);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.compatmod.legacy.event;
 
 import com.example.compatmod.legacy.api.ILegacyMod;
+import com.example.compatmod.legacy.client.ILegacyModClient;
 import com.example.compatmod.legacy.loader.LegacyModManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,7 +23,9 @@ public class LegacyScreenRenderEventHandler {
         float partialTicks = event.getPartialTick();
 
         for (ILegacyMod mod : LegacyModManager.getLegacyMods()) {
-            mod.onScreenRender(screen, guiGraphics, mouseX, mouseY, partialTicks);
+            if (net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT && mod instanceof ILegacyModClient clientMod) {
+                clientMod.onScreenRender(screen, guiGraphics, mouseX, mouseY, partialTicks);
+            }
         }
     }
 

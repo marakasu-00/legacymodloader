@@ -1,4 +1,7 @@
-package com.example.compatmod.legacy.screen;
+package com.example.compatmod.legacy.client.screen;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.example.compatmod.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
@@ -6,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+@OnlyIn(Dist.CLIENT)
 public class LegacyConfigScreen extends Screen {
 
     public LegacyConfigScreen() {
