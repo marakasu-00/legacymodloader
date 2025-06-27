@@ -27,7 +27,7 @@ public class LegacyModResources {
      * Verify that resources under the given legacy assets path do not clash with
      * already present resources.
      */
-    public static void verifyNoDuplicateResources(Path legacyAssetsPath, ConfigHandler.Priority priority) {
+    public static void verifyNoDuplicateResources(Path legacyAssetsPath, LegacyConfig.PackPriority priority) {
         try {
             Set<String> legacy = collectResources(legacyAssetsPath.resolve("assets"));
             Set<String> existing = collectExistingResources();
@@ -35,7 +35,7 @@ public class LegacyModResources {
 
             if (!dup.isEmpty()) {
                 String msg = "[LegacyLoader] Duplicate legacy assets detected: " + dup;
-                if (priority == ConfigHandler.Priority.HIGH) {
+                if (priority == LegacyConfig.PackPriority.HIGH) {
                     System.err.println(msg);
                     throw new IllegalStateException("Legacy assets conflict with existing resources");
                 } else {
@@ -112,10 +112,11 @@ public class LegacyModResources {
             if (legacyAssetsPath.toFile().exists()) {
                 System.out.println("[LegacyLoader] Registering legacy assets path: " + legacyAssetsPath);
 
-                ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
+                LegacyConfig.PackPriority priority = LegacyConfig.packPriority;
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
 
                 event.addRepositorySource(new LegacyResourcePackProvider(legacyAssetsPath, priority));
+
             } else {
                 System.out.println("[LegacyLoader] No legacy assets found to register at: " + legacyAssetsPath);
             }
