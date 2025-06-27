@@ -120,6 +120,16 @@ public class LegacyModResources {
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
 
                 event.addRepositorySource(consumer -> {
+                    try {
+                        Path mcmeta = legacyAssetsPath.resolve("pack.mcmeta");
+                        if (Files.notExists(mcmeta)) {
+                            Files.createDirectories(mcmeta.getParent());
+                            String meta = "{\n  \"pack\": {\n    \"description\": \"Legacy Assets\",\n    \"pack_format\": 15\n  }\n}";
+                            Files.writeString(mcmeta, meta);
+                        }
+                    } catch (IOException e) {
+                        System.err.println("[LegacyLoader] Failed to create pack.mcmeta" );
+                    }
 
                     Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
 
