@@ -35,7 +35,6 @@ public final class LegacyModAssetLoader {
         Path gameDir = FMLPaths.GAMEDIR.get();
         Path modsDir = gameDir.resolve("mods").resolve("legacy");
         Path assetsDir = gameDir.resolve(LEGACY_ASSETS_PATH);
-        Path legacyCopyDir = assetsDir;
         Path miscOutputDir = gameDir.resolve(LEGACY_MISC_PATH);
 
         if (!Files.isDirectory(modsDir)) {
@@ -49,7 +48,7 @@ public final class LegacyModAssetLoader {
                 String name = archive.getFileName().toString().toLowerCase();
                 if (name.endsWith(".jar") || name.endsWith(".zip")) {
                     archiveFound = true;
-                    boolean extracted = extractAssetsFromArchive(archive, assetsDir, legacyCopyDir, miscOutputDir);
+                    boolean extracted = extractAssetsFromArchive(archive, assetsDir, miscOutputDir);
                     if (!extracted) {
                         LOGGER.info("[LegacyLoader] Skipped {} as it contained no assets", archive.getFileName());
                     }
@@ -63,7 +62,7 @@ public final class LegacyModAssetLoader {
         }
     }
 
-    private static boolean extractAssetsFromArchive(Path archive, Path outputDir, Path duplicateDir, Path miscDir) {
+    private static boolean extractAssetsFromArchive(Path archive, Path outputDir, Path miscDir) {
         boolean foundAsset = false;
         LOGGER.info("[Codex] Extracting legacy resources from {}", archive.getFileName());
 
@@ -95,12 +94,6 @@ public final class LegacyModAssetLoader {
                         in.transferTo(out);
                     }
                     LOGGER.info("[LegacyLoader] Extracted {} from {}", relative, archive.getFileName());
-
-                    Path dup = duplicateDir.resolve(relative).normalize();
-                    if (dup.startsWith(duplicateDir.normalize())) {
-                        Files.createDirectories(dup.getParent());
-                        Files.copy(target, dup, StandardCopyOption.REPLACE_EXISTING);
-                    }
                 } else if (isLegacyResource(name)) {
                     foundAsset = true;
 

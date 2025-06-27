@@ -10,6 +10,7 @@ import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
+import com.example.compatmod.legacy.loader.LegacyConfig;
 import com.example.compatmod.config.ConfigHandler;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class LegacyModResources {
      * Verify that resources under the given legacy assets path do not clash with
      * already present resources.
      */
-    public static void verifyNoDuplicateResources(Path legacyAssetsPath, ConfigHandler.Priority priority) {
+    public static void verifyNoDuplicateResources(Path legacyAssetsPath, LegacyConfig.PackPriority priority) {
         try {
             Set<String> legacy = collectResources(legacyAssetsPath.resolve("assets"));
             Set<String> existing = collectExistingResources();
@@ -112,6 +113,19 @@ public class LegacyModResources {
         return true;
     }
 
+    /**
+     * Convert a {@link LegacyConfig.PackPriority} to the corresponding
+     * {@link ConfigHandler.Priority} enum value.
+     */
+    public static ConfigHandler.Priority toConfigPriority(LegacyConfig.PackPriority priority) {
+        if (priority == null) {
+            return ConfigHandler.Priority.LOW;
+        }
+        return priority == LegacyConfig.PackPriority.HIGH
+                ? ConfigHandler.Priority.HIGH
+                : ConfigHandler.Priority.LOW;
+    }
+
     @SubscribeEvent
     public static void onAddPackFinders(AddPackFindersEvent event) {
         if (event.getPackType() == PackType.CLIENT_RESOURCES) {
@@ -120,12 +134,13 @@ public class LegacyModResources {
             if (legacyAssetsPath.toFile().exists()) {
                 LOGGER.info("[LegacyLoader] Registering legacy assets path: {}", legacyAssetsPath);
 
-                ConfigHandler.Priority priority = ConfigHandler.getLegacyAssetPrioritySafe();
+                LegacyConfig.PackPriority priority = LegacyConfig.packPriority;
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
+                ConfigHandler.Priority configPriority = toConfigPriority(priority);
 
                 event.addRepositorySource(consumer -> {
 
-                    Pack.Position position = priority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
+                    Pack.Position position = configPriority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
 
                     Pack pack = Pack.readMetaAndCreate(
                             "legacy_assets",

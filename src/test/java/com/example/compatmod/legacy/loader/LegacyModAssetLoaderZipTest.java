@@ -37,6 +37,12 @@ public class LegacyModAssetLoaderZipTest {
 
             assertTrue(Files.exists(extracted), "Asset should be extracted from zip");
             assertEquals("hello", Files.readString(extracted));
+
+            long fileCount;
+            try (var stream = Files.walk(gamedir.resolve("legacy_assets"))) {
+                fileCount = stream.filter(Files::isRegularFile).count();
+            }
+            assertEquals(1, fileCount, "Only one file should exist after extraction");
         } finally {
             System.setProperty("user.dir", originalDir);
             Files.walk(gamedir)
