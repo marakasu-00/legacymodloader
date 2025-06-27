@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
 import com.example.compatmod.legacy.loader.LegacyConfig;
+import com.example.compatmod.config.ConfigHandler;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -108,6 +109,19 @@ public class LegacyModResources {
         return true;
     }
 
+    /**
+     * Convert a {@link LegacyConfig.PackPriority} to the corresponding
+     * {@link ConfigHandler.Priority} enum value.
+     */
+    public static ConfigHandler.Priority toConfigPriority(LegacyConfig.PackPriority priority) {
+        if (priority == null) {
+            return ConfigHandler.Priority.LOW;
+        }
+        return priority == LegacyConfig.PackPriority.HIGH
+                ? ConfigHandler.Priority.HIGH
+                : ConfigHandler.Priority.LOW;
+    }
+
     @SubscribeEvent
     public static void onAddPackFinders(AddPackFindersEvent event) {
         if (event.getPackType() == PackType.CLIENT_RESOURCES) {
@@ -118,10 +132,11 @@ public class LegacyModResources {
 
                 LegacyConfig.PackPriority priority = LegacyConfig.packPriority;
                 verifyNoDuplicateResources(legacyAssetsPath, priority);
+                ConfigHandler.Priority configPriority = toConfigPriority(priority);
 
                 event.addRepositorySource(consumer -> {
 
-                    Pack.Position position = priority == LegacyConfig.PackPriority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
+                    Pack.Position position = configPriority == ConfigHandler.Priority.HIGH ? Pack.Position.TOP : Pack.Position.BOTTOM;
 
                     Pack pack = Pack.readMetaAndCreate(
                             "legacy_assets",
