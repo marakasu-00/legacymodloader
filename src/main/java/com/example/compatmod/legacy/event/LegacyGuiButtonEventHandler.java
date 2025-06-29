@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
+//@Mod.EventBusSubscriber(modid = "legacymodloader", value = Dist.CLIENT)
 public class LegacyGuiButtonEventHandler {
 
     @SubscribeEvent

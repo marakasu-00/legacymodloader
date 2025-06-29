@@ -1,6 +1,8 @@
 package com.example.codex;
 
 import net.minecraft.world.inventory.MenuType;
+import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -14,7 +16,7 @@ public class CodexMenus {
 
     public static final RegistryObject<MenuType<CodexMenu>> CODEX =
             MENUS.register("codex", () ->
-                    new MenuType<>((windowId, inv) -> new CodexMenu(windowId, inv))
+                    IForgeMenuType.create((IContainerFactory<CodexMenu>) CodexMenu::new)
             );
 
     @SuppressWarnings("removal")

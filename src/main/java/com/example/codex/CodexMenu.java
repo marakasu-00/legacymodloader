@@ -8,9 +8,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
 public class CodexMenu extends AbstractContainerMenu {
-    public CodexMenu(int windowId, Inventory inv) {
+    public CodexMenu(int windowId, Inventory inv, FriendlyByteBuf buf) {
         super(CodexMenus.CODEX.get(), windowId);
-        // 必要な場合は inv から情報取得
+        // buf は nullでも呼ばれるが、特別な読み込みがなければ無視してOK
     }
 
     public CodexMenu(int windowId) {
