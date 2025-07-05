@@ -1,6 +1,7 @@
 package com.example.codex.client;
 
 import com.example.codex.CodexMenus;
+import com.example.debug.LegacyItemRegistryDebugger;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,7 +16,8 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MenuScreens.register(CodexMenus.CODEX.get(), CodexScreen::new);
+            MenuScreens.register(CodexMenus.CODEX.get(), CodexScreenWithMenu::new);
+            LegacyItemRegistryDebugger.dumpRegisteredLegacyItems("proactive");
         });
     }
 }

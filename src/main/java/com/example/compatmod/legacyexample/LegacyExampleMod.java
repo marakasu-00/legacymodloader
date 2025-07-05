@@ -1,13 +1,16 @@
 package com.example.compatmod.legacyexample;
 
-import com.example.compatmod.legacy.LegacyGameRegistry;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Item.Properties;
+import com.example.compatmod.legacy.loader.LegacyItemAutoRegistrar;
+import com.example.compatmod.legacy.registry.LegacyItemRegistry;
+import com.example.compatmod.legacy.registry.LegacyCreativeTabs;
+import com.example.debug.LegacyItemRegistryDebugger;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod("legacymodloader")
 public class LegacyExampleMod {
-    public static void register() {
-        Item exampleItem = new Item(new Properties());
-        LegacyGameRegistry.registerItem("example_item", () -> new Item(new Item.Properties()));
-
+    public LegacyExampleMod() {
+        LegacyItemRegistry.register();
+        LegacyCreativeTabs.register();
+        LegacyItemAutoRegistrar.registerItemsFromAssets();
     }
 }
