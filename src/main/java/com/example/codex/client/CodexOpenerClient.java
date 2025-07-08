@@ -8,8 +8,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public class CodexOpenerClient {
-    public static void openScreen() {
-        Minecraft.getInstance().setScreen(new CodexScreen());
+    public static void openScreen(LegacyItem item) {
+        Minecraft.getInstance().setScreen(new CodexScreen(item));
     }
 
 }

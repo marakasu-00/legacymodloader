@@ -5,9 +5,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
 public class CodexManager {
-    public static void openCodexScreen() {
+    public static void openCodexScreen(LegacyItem item) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            com.example.codex.client.CodexOpenerClient.openScreen();
+            com.example.codex.client.CodexOpenerClient.openScreen(item);
         });
     }
 }

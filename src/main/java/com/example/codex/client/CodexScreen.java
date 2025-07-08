@@ -17,14 +17,16 @@ import java.util.Optional;
 public class CodexScreen extends Screen {
     private static final int ENTRY_HEIGHT = 40;
     private static final int ICON_SIZE = 32;
+    private final LegacyItem item;
 
     private final List<LegacyItem> items = LegacyItem.getAllLegacyItems();
     private int scrollOffset = 0;
     private Button scrollUp;
     private Button scrollDown;
 
-    public CodexScreen() {
-        super(Component.literal("Legacy Codex"));
+    public CodexScreen(LegacyItem item) {
+        super(Component.literal("Codex - " + item.getLegacyId()));
+        this.item = item;
     }
 
     @Override

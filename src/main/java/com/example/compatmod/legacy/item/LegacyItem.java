@@ -11,6 +11,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,16 +57,18 @@ public class LegacyItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide) {
-            CodexOpenerClient.openScreen(); // ← LegacyItem を渡す
+            //CodexOpenerClient.openScreen(); // ← LegacyItem を渡す
+            CodexOpenerClient.openScreen(this); // this = このアイテム自体
         }
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }
 
     @Override
-    public void initializeClient(java.util.function.Consumer<net.minecraft.client.item.RenderProperties> consumer) {
-        consumer.accept(new net.minecraft.client.item.RenderProperties() {
+    @net.minecraftforge.api.distmarker.OnlyIn(net.minecraftforge.api.distmarker.Dist.CLIENT)
+    public void initializeClient(java.util.function.Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return LegacyItemRenderer.INSTANCE;
             }
         });
