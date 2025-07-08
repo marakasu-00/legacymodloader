@@ -14,6 +14,8 @@ import javax.annotation.WillClose;
 
 public class LegacyItemRenderer extends BlockEntityWithoutLevelRenderer {
 
+    public static final LegacyItemRenderer INSTANCE = new LegacyItemRenderer();
+
     private final ItemRenderer itemRenderer;
 
     public LegacyItemRenderer() {

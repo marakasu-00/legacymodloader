@@ -6,17 +6,24 @@ import com.example.compatmod.loader.LegacyModScanner;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class LegacyItemAutoRegistrar {
 
     public static void registerItemsFromAssets() {
         for (String modId : LegacyModScanner.scanLegacyModIds()) {
-            Path texDir = Paths.get("run/legacy_assets", modId, "textures", "item");
-            if (!Files.exists(texDir)) {
+            List<Path> candidatePaths = List.of(
+                    Paths.get("run/legacy_assets", modId, "textures", "items")
+            );
+
+            Path texDir = candidatePaths.stream().filter(Files::exists).findFirst().orElse(null);
+            if (texDir == null) {
                 System.out.println("[Skip] No texture directory for mod: " + modId);
                 continue;
             }
+
+            System.out.println("[Found] Texture directory for mod: " + modId + " at " + texDir);
 
             try (Stream<Path> files = Files.list(texDir)) {
                 files.filter(p -> p.toString().endsWith(".png")).forEach(p -> {

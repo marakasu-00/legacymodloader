@@ -60,5 +60,14 @@ public class LegacyItem extends Item {
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }
 
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraft.client.item.RenderProperties> consumer) {
+        consumer.accept(new net.minecraft.client.item.RenderProperties() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+                return LegacyItemRenderer.INSTANCE;
+            }
+        });
+    }
 
 }

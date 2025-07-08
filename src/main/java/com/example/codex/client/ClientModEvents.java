@@ -17,7 +17,7 @@ public class ClientModEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(CodexMenus.CODEX.get(), CodexScreenWithMenu::new);
-            LegacyItemRegistryDebugger.dumpRegisteredLegacyItems("proactive");
+            LegacyItemRegistryDebugger.dumpAllRegisteredLegacyItems();
         });
     }
 }
