@@ -13,7 +13,7 @@ public class LangToJsonConverter {
     private static final String[] LANG_CODES = {"ja_JP", "en_US", "zh_CN", "ko_KR"};
 
     public static void main(String[] args) throws IOException {
-        Path baseLangPath = Paths.get("run/legacy_assets");
+        Path baseLangPath = Paths.get("legacy_assets");
 
         try (Stream<Path> mods = Files.list(baseLangPath)) {
             mods.filter(Files::isDirectory).forEach(modPath -> {

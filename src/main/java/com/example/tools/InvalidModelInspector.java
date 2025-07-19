@@ -15,7 +15,7 @@ public class InvalidModelInspector {
     private static final List<String> UNSUPPORTED_EXTENSIONS = List.of(".mqo", ".npm", ".ngtz", ".ngto", ".obj");
 
     public static void main(String[] args) throws IOException {
-        Path basePath = Paths.get("run/legacy_assets");
+        Path basePath = Paths.get("legacy_assets");
 
         try (Stream<Path> paths = Files.walk(basePath)) {
             paths.filter(Files::isRegularFile)
@@ -80,6 +80,6 @@ public class InvalidModelInspector {
         if (parts.length != 2) return Paths.get("INVALID_PATH");
         String modId = parts[0];
         String path = parts[1];
-        return Paths.get("run/legacy_assets", modId, "textures", "", path + ".png").normalize();
+        return Paths.get("legacy_assets", modId, "textures", "", path + ".png").normalize();
     }
 }
