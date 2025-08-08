@@ -1,8 +1,7 @@
-// ✅ LegacyItemRegistry.java
 package com.example.compatmod.legacy.registry;
 
 import com.example.compatmod.legacy.item.LegacyItem;
-import com.example.compatmod.legacy.loader.LegacyItemBootstrapper;
+import com.example.compatmod.legacy.util.LegacyAssetNormalizer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -10,6 +9,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class LegacyItemRegistry {
@@ -22,9 +23,11 @@ public class LegacyItemRegistry {
     public static void register() {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         System.out.println("[LegacyItemRegistry] DeferredRegister<Item> REGISTERED");
-    }
 
-    public static void registerItemsFromBootstrap(Map<String, List<String>> legacyMap) {
+        Path legacyRoot = Paths.get("run", "legacy_assets");
+        Path normalizedRoot = Paths.get("run", "legacy_assets_normalized");
+
+        Map<String, List<String>> legacyMap = LegacyAssetNormalizer.normalizeAndCopy(legacyRoot, normalizedRoot);
         for (Map.Entry<String, List<String>> entry : legacyMap.entrySet()) {
             String modId = entry.getKey();
             for (String legacyId : entry.getValue()) {
@@ -40,6 +43,7 @@ public class LegacyItemRegistry {
             System.out.printf("[LegacyTab] Created tab for: %s\n", modId);
         }
     }
+
     public static Set<String> getRegisteredModIds() {
         return legacyItems.keySet();
     }
@@ -47,5 +51,4 @@ public class LegacyItemRegistry {
     public static List<RegistryObject<Item>> getItemsForMod(String modId) {
         return legacyItems.getOrDefault(modId, List.of());
     }
-
 }

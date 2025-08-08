@@ -17,7 +17,7 @@ public class ModCommonEvents {
         event.enqueueWork(() -> {
             System.out.println("[ModCommonEvents] Bootstrap start");
             Map<String, List<String>> legacyMap = LegacyItemBootstrapper.getLegacyItemsPerMod();
-            LegacyItemRegistry.registerItemsFromBootstrap(legacyMap);
+            //LegacyItemRegistry.registerItemsFromBootstrap(legacyMap);
             System.out.println("[ModCommonEvents] Bootstrap done");
         });
     }

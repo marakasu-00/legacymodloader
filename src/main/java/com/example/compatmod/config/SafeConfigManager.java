@@ -1,8 +1,10 @@
 package com.example.compatmod.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class SafeConfigManager {
+
+    private static ModConfig currentConfig;
 
     public static void setSlider(double value) {
         if (value >= 0.0 && value <= 1.0) {
@@ -44,6 +46,20 @@ public class SafeConfigManager {
     public static void saveConfigSafe() {
         try {
             ConfigHandler.COMMON_CONFIG.save();
+        } catch (Exception e) {
+            System.err.println("[SafeConfigManager] Failed to save config: " + e.getMessage());
+        }
+    }
+
+    public static void save() {
+        if (currentConfig == null) {
+            // Configが未割り当てならエラーログを残すだけでスキップ
+            System.err.println("[SafeConfigManager] No config assigned; skipping save.");
+            return;
+        }
+
+        try {
+            currentConfig.save();
         } catch (Exception e) {
             System.err.println("[SafeConfigManager] Failed to save config: " + e.getMessage());
         }
