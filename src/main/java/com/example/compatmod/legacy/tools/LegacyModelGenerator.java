@@ -3,6 +3,7 @@ package com.example.compatmod.legacy.tools;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -10,7 +11,7 @@ import java.nio.file.*;
 import java.util.stream.Stream;
 
 public class LegacyModelGenerator {
-    private static final Path LEGACY_ASSETS_DIR = Paths.get("run", "legacy_assets", "assets");
+    private static final Path LEGACY_ASSETS_DIR = FMLPaths.GAMEDIR.get().resolve("legacy_assets").resolve("assets");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void generateAllModels() {

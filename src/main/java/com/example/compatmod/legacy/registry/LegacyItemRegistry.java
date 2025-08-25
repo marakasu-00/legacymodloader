@@ -5,6 +5,7 @@ import com.example.compatmod.legacy.util.LegacyAssetNormalizer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -24,8 +25,9 @@ public class LegacyItemRegistry {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         System.out.println("[LegacyItemRegistry] DeferredRegister<Item> REGISTERED");
 
-        Path legacyRoot = Paths.get("run", "legacy_assets");
-        Path normalizedRoot = Paths.get("run", "legacy_assets_normalized");
+        Path legacyRoot = FMLPaths.GAMEDIR.get().resolve("legacy_assets");
+        Path normalizedRoot = FMLPaths.GAMEDIR.get().resolve("legacy_assets_normalized");
+
 
         Map<String, List<String>> legacyMap = LegacyAssetNormalizer.normalizeAndCopy(legacyRoot, normalizedRoot);
         for (Map.Entry<String, List<String>> entry : legacyMap.entrySet()) {
