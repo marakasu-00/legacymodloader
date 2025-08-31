@@ -18,11 +18,9 @@ public class ModCommonEvents {
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             System.out.println("[ModCommonEvents] Bootstrap start");
-
-            Path path = Paths.get("run/legacy_assets_normalized");
-            Map<String, List<String>> legacyMap = LegacyItemBootstrapper.getLegacyItemsPerMod(path);
+            Path assetRoot = Paths.get("run", "legacy_assets");
+            Map<String, List<String>> legacyMap = LegacyItemBootstrapper.getLegacyItemsPerMod(assetRoot);
             LegacyItemRegistry.registerItemsFromBootstrap(legacyMap);
-
             System.out.println("[ModCommonEvents] Bootstrap done");
         });
     }

@@ -50,6 +50,22 @@ public class LegacyItemRegistry {
         }
     }
 
+    public static void registerItemsFromBootstrap(Map<String, List<String>> legacyMap) {
+        for (Map.Entry<String, List<String>> entry : legacyMap.entrySet()) {
+            String modId = entry.getKey();
+            for (String legacyId : entry.getValue()) {
+                String fullId = modId + "_" + legacyId;
+                RegistryObject<Item> item = ITEMS.register(fullId, () ->
+                        new LegacyItem(modId, legacyId, new Properties())
+                );
+                legacyItems.computeIfAbsent(modId, k -> new ArrayList<>()).add(item);
+                System.out.printf("[LegacyItemRegistry] Registered %s:%s\n", modId, legacyId);
+            }
+            LegacyCreativeTabs.createTabForMod(modId);
+            System.out.printf("[LegacyTab] Created tab for: %s\n", modId);
+        }
+    }
+
     // 小文字化と記号の置換
     private static String normalizeResourcePath(String raw) {
         return raw.toLowerCase().replaceAll("[^a-z0-9/._-]", "_");

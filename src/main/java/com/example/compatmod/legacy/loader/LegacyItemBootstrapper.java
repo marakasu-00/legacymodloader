@@ -3,42 +3,42 @@ package com.example.compatmod.legacy.loader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import java.util.stream.*;
 
 public class LegacyItemBootstrapper {
+
     public static Map<String, List<String>> getLegacyItemsPerMod(Path legacyAssetsRoot) {
         Map<String, List<String>> result = new HashMap<>();
 
+        System.out.println("[Bootstrap] Checking path: " + legacyAssetsRoot.toAbsolutePath());
         if (!Files.exists(legacyAssetsRoot)) {
-            System.out.println("[Bootstrap] Path does not exist: " + legacyAssetsRoot);
+            System.out.println("[Bootstrap] Path does not exist: " + legacyAssetsRoot.toAbsolutePath());
             return result;
         }
-
-        System.out.println("[Bootstrap] Scanning directory: " + legacyAssetsRoot);
 
         try (Stream<Path> modDirs = Files.list(legacyAssetsRoot)) {
             for (Path modDir : modDirs.collect(Collectors.toList())) {
                 String modId = modDir.getFileName().toString();
-                List<String> itemList = new ArrayList<>();
+                Path texPath1 = modDir.resolve("textures/item");
+                Path texPath2 = modDir.resolve("textures/items");
 
-                for (String subDir : List.of("textures/items", "textures/item")) {
-                    Path texDir = modDir.resolve(subDir);
-                    if (Files.exists(texDir)) {
-                        try (Stream<Path> files = Files.list(texDir)) {
-                            files.filter(p -> p.toString().endsWith(".png"))
-                                    .map(p -> p.getFileName().toString().replace(".png", ""))
-                                    .forEach(itemList::add);
-                        } catch (IOException e) {
-                            System.err.printf("[Error] Failed to read textures for mod %s: %s\n", modId, e.getMessage());
-                        }
+                Path texPath = Files.exists(texPath1) ? texPath1 :
+                        Files.exists(texPath2) ? texPath2 : null;
+
+                if (texPath == null) continue;
+
+                try (Stream<Path> files = Files.list(texPath)) {
+                    List<String> items = files
+                            .filter(p -> p.toString().endsWith(".png"))
+                            .map(p -> p.getFileName().toString().replaceAll("\\.png$", ""))
+                            .collect(Collectors.toList());
+
+                    if (!items.isEmpty()) {
+                        result.put(modId, items);
+                        System.out.printf("[Bootstrap] %s: %d items discovered\n", modId, items.size());
                     }
-                }
-
-                if (!itemList.isEmpty()) {
-                    result.put(modId, itemList);
-                    System.out.printf("[Bootstrap] %s: %d items discovered\n", modId, itemList.size());
+                } catch (IOException e) {
+                    System.err.printf("[Error] Failed reading tex dir for %s: %s\n", modId, e.getMessage());
                 }
             }
         } catch (IOException e) {
@@ -47,5 +47,4 @@ public class LegacyItemBootstrapper {
 
         return result;
     }
-
 }
